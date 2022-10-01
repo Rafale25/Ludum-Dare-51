@@ -31,11 +31,9 @@ class EnemyManager:
 
     def on_collision(self, enemy, player):
         if self.rage_mode:
-            # print("Enemy died")
             enemy.dead = True
         else:
-            # print("Player died")
-            pass # TODO kill the player D:
+            ctx.game.end_game()
 
     def update(self, dt):
         self.until_spawn -= dt

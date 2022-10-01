@@ -38,6 +38,35 @@ class StartView(arcade.View):
             ctx.game = GameView()
             self.window.show_view(ctx.game)
 
+class GameOverView(arcade.View):
+    def on_draw(self):
+        self.clear()
+
+        arcade.draw_text(
+            text="Bruh",
+            bold=True,
+            font_size=42,
+            start_x=SCREEN_WIDTH/2,
+            start_y=SCREEN_HEIGHT/2 - 50,
+            anchor_x="center",
+            anchor_y="center",
+            rotation=sin(time.time() * 3) * 10)
+
+        arcade.draw_text(
+            text="Press Space to restart",
+            bold=True,
+            font_size=42,
+            start_x=SCREEN_WIDTH/2,
+            start_y=SCREEN_HEIGHT/2 + 50,
+            anchor_x="center",
+            anchor_y="center",
+            rotation=sin((time.time()+2) * 3) * 10)
+
+    def on_key_press(self, key, key_modifiers):
+        if key == arcade.key.SPACE:
+            ctx.game = GameView()
+            self.window.show_view(ctx.game)
+
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -61,6 +90,9 @@ class GameView(arcade.View):
         self.enemy_manager = EnemyManager()
 
         self.partial_dt = 0
+
+    def end_game(self):
+        self.window.show_view(GameOverView())
 
     def tile_quantize(self, x, y):
         return Vec2(int(x / GRID_SCALE) * GRID_SCALE, int(y / GRID_SCALE) * GRID_SCALE)
