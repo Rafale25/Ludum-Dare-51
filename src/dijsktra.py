@@ -21,10 +21,11 @@ class PathFindingMap:
             v = Vec2(0.0, 0.0)
             x, y = self.game.toXY(i)
 
+            # for gx, gy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
             for gy in range(-1, 1):
                 for gx in range(-1, 1):
-                    if gx == 0 and gy == 0: continue
-
+                    # print(self.game.toI(x+gx, y+gy))
+                    # if gx == 0 and gy == 0: continue
                     if self.dijkstra[self.game.toI(x+gx, y+gy)] < self.dijkstra[i]:
                         v += Vec2(gx, gy)
 

@@ -38,10 +38,10 @@ class MyGame(arcade.Window):
         self.enemy_manager = EnemyManager(self)
 
     def tile_at(self, x, y):
-        x //= GRID_SCALE
-        y //= GRID_SCALE
+        x /= GRID_SCALE
+        y /= GRID_SCALE
         if 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT:
-            return self.grid[int(y) * GRID_WIDTH + int(x)]
+            return self.grid[round(y) * GRID_WIDTH + round(x)]
         else:
             return TILE_WALL
 
@@ -56,7 +56,8 @@ class MyGame(arcade.Window):
 
     def on_draw(self):
         arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
-        # self.pathFindingMap.compute(GRID_WIDTH/2, GRID_HEIGHT/2)
+        # self.pathFindingMap.compute(self.player.pos.x/GRID_SCALE, self.player.pos.y//GRID_SCALE)
+        self.pathFindingMap.compute(0, 0)
 
         self.clear()
 
@@ -81,13 +82,14 @@ class MyGame(arcade.Window):
         #         color=arcade.color.RED)
 
         ## draws gradient map
-        # for i in range(GRID_HEIGHT * GRID_WIDTH):
-        #     y = i // GRID_WIDTH
-        #     x = i % GRID_WIDTH
-        #     arcade.draw_text(str(self.dijkstra_map[i]),
-        #         start_x=x*GRID_SCALE,
-        #         start_y=y*GRID_SCALE,
-        #         color=arcade.color.RED)
+        for i in range(GRID_HEIGHT * GRID_WIDTH):
+            y = i // GRID_WIDTH
+            x = i % GRID_WIDTH
+            arcade.draw_line(
+                x*GRID_SCALE, y*GRID_SCALE,
+                x*GRID_SCALE + self.pathFindingMap.gradient[i].x,
+                y*GRID_SCALE + self.pathFindingMap.gradient[i].y,
+                arcade.color.RED, line_width=0.2)
 
         self.player.draw()
         self.enemy_manager.draw()

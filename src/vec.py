@@ -127,8 +127,10 @@ class VecBase:
         Normalizes vector in-place.
         """
         ln = self.len()
-        for i, e in enumerate(self):
-            self[i] = e / ln
+        if ln != 0:
+            for i, e in enumerate(self):
+                self[i] = e / ln
+        return ln
 
     def as_n_d(self, n):
         if n <= len(self):
