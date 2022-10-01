@@ -50,12 +50,12 @@ class EnemyManager:
             delta /= ln
 
             pathFindDir = self.game.pathFindingMap.gradient[int(enemy.pos.y / GRID_SCALE) * GRID_WIDTH + int(enemy.pos.x / GRID_SCALE)]
-            dir = (delta*0.25 + pathFindDir).normalized()
+            direction = (delta*0.25 + pathFindDir).normalized()
 
             if self.rage_mode:
-                dir *= -1
+                direction *= -1
 
-            enemy.pos += dir * ENEMY_SPEED * dt
+            enemy.pos += direction * ENEMY_SPEED * dt
 
             # TODO pathfind
 
