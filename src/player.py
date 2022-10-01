@@ -3,6 +3,9 @@ import arcade
 from src.consts import *
 from src.vec import Vec2
 
+def clamp(x, mn, mx):
+    return max(min(x, mx), mn)
+
 class Player:
     def __init__(self, game, x, y):
         self.pos = Vec2(x, y)
@@ -10,24 +13,24 @@ class Player:
         self.game = game
 
     def update(self, dt):
+        current_tile = self.game.tile_quantize(*self.pos)
         dx = self.game.pressed[arcade.key.D] - self.game.pressed[arcade.key.A]
         dy = self.game.pressed[arcade.key.W] - self.game.pressed[arcade.key.S]
         delta = Vec2(dx, dy)
         delta.normalize()
-        new = self.pos + delta * PLAYER_SPEED * dt
+        new = self.pos.copy()
         half_size = PLAYER_SIZE / 2
 
-        any_fix = False
-        fix = Vec2(0, 0)
-        for sx in (-half_size, half_size):
-            for sy in (-half_size, half_size):
-                if self.game.tile_at(new.x + sx, new.y + sy) != TILE_EMPTY:
-                    fix -= (sx, sy)
-                    any_fix = True
-        if any_fix:
-            delta += fix
-            delta.normalize()
-            new = self.pos + delta * PLAYER_SPEED * dt
+        for axis in range(2):
+            new[axis] += delta[axis] * PLAYER_SPEED * dt
+            any_fix = False
+            for sx in (-half_size, half_size):
+                for sy in (-half_size, half_size):
+                    if self.game.tile_at(new.x + sx, new.y + sy) != TILE_EMPTY:
+                        any_fix = True
+            if any_fix:
+                eps = 0.001
+                new[axis] = clamp(new[axis], current_tile[axis] + half_size + eps, current_tile[axis] + GRID_SCALE - half_size - eps)
 
         self.pos = new
 
