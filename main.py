@@ -83,18 +83,18 @@ class MyGame(arcade.Window):
         #         color=arcade.color.RED)
 
         ## draws gradient map
-        # for i in range(GRID_HEIGHT * GRID_WIDTH):
-        #     y = i // GRID_WIDTH
-        #     x = i % GRID_WIDTH
+        for i in range(GRID_HEIGHT * GRID_WIDTH):
+            y = i // GRID_WIDTH
+            x = i % GRID_WIDTH
 
-        #     startx = x*GRID_SCALE + GRID_SCALE/2
-        #     starty = y*GRID_SCALE + GRID_SCALE/2
-        #     arcade.draw_line(
-        #         startx,
-        #         starty,
-        #         startx + self.pathFindingMap.gradient[i].x,
-        #         starty + self.pathFindingMap.gradient[i].y,
-        #         arcade.color.RED, line_width=0.2)
+            startx = x*GRID_SCALE + GRID_SCALE/2
+            starty = y*GRID_SCALE + GRID_SCALE/2
+            arcade.draw_line(
+                startx,
+                starty,
+                startx + self.pathFindingMap.gradient[i].x,
+                starty + self.pathFindingMap.gradient[i].y,
+                arcade.color.RED, line_width=0.2)
 
         self.player.draw()
         self.enemy_manager.draw()
