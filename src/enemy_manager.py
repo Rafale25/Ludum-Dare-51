@@ -3,22 +3,22 @@ from dataclasses import dataclass
 
 import arcade
 
+from src import ctx
 from src.consts import *
 from src.vec import Vec2
+from src.player import Entity
 
 SPAWN_DELAY = 10
 RAGE_DELAY = 10
 ENEMY_SPEED = 10
 
 @dataclass
-class Enemy:
+class Enemy(Entity):
     pos: Vec2
     dead: bool = False
 
 class EnemyManager:
-    def __init__(self, game):
-        self.game = game
-
+    def __init__(self):
         self.enemies = []
         self.until_spawn = -5
         self.until_rage = RAGE_DELAY
@@ -42,7 +42,7 @@ class EnemyManager:
             self.until_rage += RAGE_DELAY
             self.rage_mode = not self.rage_mode
 
-        player = self.game.player
+        player = ctx.game.player
         for enemy in self.enemies:
             delta = player.pos - enemy.pos
             ln = delta.len()
@@ -53,15 +53,15 @@ class EnemyManager:
 
             pathFindDir = Vec2(0.0, 0.0)
 
-            if self.game.isXYInGrid(enemy_grid_x, enemy_grid_y):
-                pathFindDir = self.game.pathFindingMap.gradient[enemy_grid_y * GRID_WIDTH + enemy_grid_x]
+            if ctx.game.isXYInGrid(enemy_grid_x, enemy_grid_y):
+                pathFindDir = ctx.game.pathFindingMap.gradient[enemy_grid_y * GRID_WIDTH + enemy_grid_x]
 
             direction = (delta*0.25 + pathFindDir).normalized()
 
             if self.rage_mode:
                 direction *= -0.8
 
-            enemy.pos += direction * ENEMY_SPEED * dt
+            enemy.move_and_collide(direction * ENEMY_SPEED * dt)
 
             if ln < PLAYER_SIZE:
                 self.on_collision(enemy, player)

@@ -24,20 +24,20 @@ class PathFindingMap:
             v = Vec2(0.0, 0.0)
             x, y = self.game.toXY(i)
 
-            size = 2
 
-            # for gx, gy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
-            for gy in range(-size, size+1):
-                for gx in range(-size, size+1):
-                    if x == y == 0: continue
-                    if not self.game.isXYInGrid(x+gx, y+gy): continue
+            # size = 1
+            # for gy in range(-size, size+1):
+            #     for gx in range(-size, size+1):
+            for gx, gy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+                if x == y == 0: continue
+                if not self.game.isXYInGrid(x+gx, y+gy): continue
 
-                    try:
-                        index = self.game.toI(x+gx, y+gy)
-                        if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
-                            v += Vec2(gx, gy)
-                    except IndexError:
-                        pass
+                try:
+                    index = self.game.toI(x+gx, y+gy)
+                    if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
+                        v += Vec2(gx, gy)
+                except IndexError:
+                    pass
 
             try:
                 v.normalize()

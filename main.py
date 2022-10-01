@@ -9,6 +9,7 @@ from src.player import Player
 from src.enemy_manager import EnemyManager
 from src.dijsktra import PathFindingMap
 from src.vec import Vec2
+from src import ctx
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -34,10 +35,8 @@ class MyGame(arcade.Window):
 
         self.pathFindingMap = PathFindingMap(self)
 
-        self.player = Player(self, x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
+        self.player = Player(x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
         self.enemy_manager = EnemyManager(self)
-
-        # self.pathFindingMap.compute(self.player.pos.x/GRID_SCALE, self.player.pos.y/GRID_SCALE)
 
     def tile_quantize(self, x, y):
         return Vec2(int(x / GRID_SCALE) * GRID_SCALE, int(y / GRID_SCALE) * GRID_SCALE)
@@ -63,10 +62,18 @@ class MyGame(arcade.Window):
         return (i % GRID_WIDTH, i // GRID_WIDTH)
 
     def on_draw(self):
-        arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
-        # self.pathFindingMap.compute(self.player.pos.x/GRID_SCALE, self.player.pos.y/GRID_SCALE)
-
         self.clear()
+        # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
+
+        VIEWPORT_WIDTH = SCREEN_WIDTH / 20
+        VIEWPORT_HEIGHT = SCREEN_HEIGHT / 20
+
+        arcade.set_viewport(
+            left=self.player.pos.x - VIEWPORT_WIDTH/2,
+            right=self.player.pos.x + VIEWPORT_WIDTH/2,
+            bottom=self.player.pos.y - VIEWPORT_HEIGHT/2,
+            top=self.player.pos.y + VIEWPORT_HEIGHT/2
+        )
 
         for i in range(GRID_HEIGHT * GRID_WIDTH):
             y = i // GRID_WIDTH
@@ -128,7 +135,7 @@ class MyGame(arcade.Window):
 
 
 def main():
-    game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    ctx.game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     arcade.run()
 
 if __name__ == "__main__":
