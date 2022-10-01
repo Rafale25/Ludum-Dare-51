@@ -1,100 +1,121 @@
-"""
-Starting Template
+from math import dist
+import random
+from collections import defaultdict
 
-Once you have learned how to use classes, you can begin your program with this
-template.
-
-If Python and Arcade are installed, this example can be run from the command line with:
-python -m arcade.examples.starting_template
-"""
 import arcade
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Starting Template"
+from src.consts import *
+from src.player import Player
+from src.enemy_mananager import EnemyManager
+from src.dijsktra import PathFindingMap
 
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
+SCREEN_TITLE = "Ludum Dare 51"
 
 class MyGame(arcade.Window):
-    """
-    Main application class.
-
-    NOTE: Go ahead and delete the methods you don't need.
-    If you do need a method, delete the 'pass' and replace it
-    with your own code. Don't leave 'pass' in this program.
-    """
 
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
+        self.pressed = defaultdict(bool)
         arcade.set_background_color(arcade.color.AMAZON)
 
-        # If you have sprite lists, you should create them here,
-        # and set them to None
+        random.seed(69) # Haha funny
 
-    def setup(self):
-        """ Set up the game variables. Call to re-start the game. """
-        # Create your sprites and sprite lists here
-        pass
+        # Get X and Y from index and width
+        # y = i // GRID_WIDTH
+        # x = i % GRID_WIDTH
+        self.grid = [0] * GRID_WIDTH * GRID_HEIGHT
+
+        for i in range(GRID_HEIGHT * GRID_WIDTH):
+            self.grid[i] = TILE_WALL if random.random() > 0.8 else TILE_EMPTY
+
+        self.pathFindingMap = PathFindingMap(self)
+        self.pathFindingMap.compute(GRID_WIDTH/2, GRID_HEIGHT/2)
+
+        self.player = Player(self, x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
+        self.enemy_manager = EnemyManager(self)
+
+    def tile_at(self, x, y):
+        x //= GRID_SCALE
+        y //= GRID_SCALE
+        if 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT:
+            return self.grid[int(y) * GRID_WIDTH + int(x)]
+        else:
+            return TILE_WALL
+
+    def isIndexInGrid(self, i):
+        return 0 <= i < GRID_WIDTH * GRID_HEIGHT
+
+    def toI(self, x, y):
+        return int(y) * GRID_WIDTH + int(x)
+
+    def toXY(self, i):
+        return (i % GRID_WIDTH, i // GRID_WIDTH)
 
     def on_draw(self):
-        """
-        Render the screen.
-        """
+        arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
+        # self.pathFindingMap.compute(GRID_WIDTH/2, GRID_HEIGHT/2)
 
-        # This command should happen before we start drawing. It will clear
-        # the screen to the background color, and erase what we drew last frame.
         self.clear()
 
-        # Call draw() on all your sprite lists below
+        for i in range(GRID_HEIGHT * GRID_WIDTH):
+            y = i // GRID_WIDTH
+            x = i % GRID_WIDTH
 
-    def on_update(self, delta_time):
-        """
-        All the logic to move, and the game logic goes here.
-        Normally, you'll call update() on the sprite lists that
-        need it.
-        """
-        pass
+            arcade.draw_rectangle_filled(
+                center_x=x*GRID_SCALE,
+                center_y=y*GRID_SCALE,
+                width=GRID_SCALE,
+                height=GRID_SCALE,
+                color=(0,0,0) if (self.grid[i] == 1) != self.enemy_manager.rage_mode else (150,150,150))
 
+        ## draws dijsktra map
+        # for i in range(GRID_HEIGHT * GRID_WIDTH):
+        #     y = i // GRID_WIDTH
+        #     x = i % GRID_WIDTH
+        #     arcade.draw_text(str(self.dijkstra_map[i]),
+        #         start_x=x*GRID_SCALE,
+        #         start_y=y*GRID_SCALE,
+        #         color=arcade.color.RED)
+
+        ## draws gradient map
+        # for i in range(GRID_HEIGHT * GRID_WIDTH):
+        #     y = i // GRID_WIDTH
+        #     x = i % GRID_WIDTH
+        #     arcade.draw_text(str(self.dijkstra_map[i]),
+        #         start_x=x*GRID_SCALE,
+        #         start_y=y*GRID_SCALE,
+        #         color=arcade.color.RED)
+
+        self.player.draw()
+        self.enemy_manager.draw()
+
+    def on_update(self, dt):
+        self.player.update(dt)
+        self.enemy_manager.update(dt)
+
+    # https://api.arcade.academy/en/latest/arcade.key.html
     def on_key_press(self, key, key_modifiers):
-        """
-        Called whenever a key on the keyboard is pressed.
-
-        For a full list of keys, see:
-        https://api.arcade.academy/en/latest/arcade.key.html
-        """
-        pass
+        self.pressed[key] = True
 
     def on_key_release(self, key, key_modifiers):
-        """
-        Called whenever the user lets off a previously pressed key.
-        """
-        pass
+        self.pressed[key] = False
 
     def on_mouse_motion(self, x, y, delta_x, delta_y):
-        """
-        Called whenever the mouse moves.
-        """
         pass
 
     def on_mouse_press(self, x, y, button, key_modifiers):
-        """
-        Called when the user presses a mouse button.
-        """
         pass
 
     def on_mouse_release(self, x, y, button, key_modifiers):
-        """
-        Called when a user releases a mouse button.
-        """
         pass
 
 
 def main():
-    """ Main function """
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    game.setup()
     arcade.run()
-
 
 if __name__ == "__main__":
     main()
