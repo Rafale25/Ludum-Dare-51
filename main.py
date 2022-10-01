@@ -17,6 +17,10 @@ SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Ludum Dare 51"
 
 class StartView(arcade.View):
+    def on_show_view(self):
+        arcade.set_background_color(arcade.color.BLACK)
+        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+
     def on_draw(self):
         self.clear()
 
@@ -39,6 +43,10 @@ class StartView(arcade.View):
             self.window.show_view(ctx.game)
 
 class GameOverView(arcade.View):
+    def on_show_view(self):
+        arcade.set_background_color(arcade.color.BLACK)
+        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+
     def on_draw(self):
         self.clear()
 
@@ -47,7 +55,7 @@ class GameOverView(arcade.View):
             bold=True,
             font_size=42,
             start_x=SCREEN_WIDTH/2,
-            start_y=SCREEN_HEIGHT/2 - 50,
+            start_y=SCREEN_HEIGHT/2 + 50,
             anchor_x="center",
             anchor_y="center",
             rotation=sin(time.time() * 3) * 10)
@@ -57,10 +65,10 @@ class GameOverView(arcade.View):
             bold=True,
             font_size=42,
             start_x=SCREEN_WIDTH/2,
-            start_y=SCREEN_HEIGHT/2 + 50,
+            start_y=SCREEN_HEIGHT/2 - 50,
             anchor_x="center",
             anchor_y="center",
-            rotation=sin((time.time()+2) * 3) * 10)
+            rotation=sin((time.time()+4.789) * 3) * 10)
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.SPACE:
