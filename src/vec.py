@@ -144,6 +144,14 @@ class VecBase:
     def in_box(self, a, b):
         return all(av <= v <= bv for v, av, bv in zip(self, a, b))
 
+    def clamped(self, max_ln):
+        ln = self.len()
+        if ln > max_ln:
+            return self / ln * max_ln
+        else:
+            return self.copy()
+
+
 class Vec2(VecBase):
     """
     2-dimensional vector. Faster than **Vec**. Inherits **VecBase**.

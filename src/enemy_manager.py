@@ -7,14 +7,19 @@ from src import ctx
 from src.consts import *
 from src.vec import Vec2
 from src.player import Entity
+from src.utils import clamp
 
-SPAWN_DELAY = 10
+SPAWN_DELAY = 0.5
 RAGE_DELAY = 10
 ENEMY_SPEED = 10
+
+MAX_VEL = 1.0
+TURNING_WEIGHT = 0.04
 
 @dataclass
 class Enemy(Entity):
     pos: Vec2
+    vel: Vec2
     dead: bool = False
 
 class EnemyManager:
@@ -36,7 +41,7 @@ class EnemyManager:
         self.until_spawn -= dt
         if self.until_spawn < 0:
             self.until_spawn += SPAWN_DELAY
-            self.enemies.append(Enemy(Vec2(2, 2))) # TODO select a better location
+            self.enemies.append(Enemy(Vec2(2, 2), Vec2(0, 0))) # TODO select a better location
         self.until_rage -= dt
         if self.until_rage < 0:
             self.until_rage += RAGE_DELAY
@@ -59,9 +64,12 @@ class EnemyManager:
             direction = (delta*0.25 + pathFindDir).normalized()
 
             if self.rage_mode:
-                direction *= -0.8
+                direction *= -1
 
-            enemy.move_and_collide(direction * ENEMY_SPEED * dt)
+            enemy.vel += direction * TURNING_WEIGHT
+            enemy.vel = enemy.vel.clamped(MAX_VEL)
+
+            enemy.move_and_collide((enemy.vel) * ENEMY_SPEED * dt)
 
             if ln < PLAYER_SIZE:
                 self.on_collision(enemy, player)

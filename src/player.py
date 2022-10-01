@@ -3,9 +3,7 @@ import arcade
 from src import ctx
 from src.consts import *
 from src.vec import Vec2
-
-def clamp(x, mn, mx):
-    return max(min(x, mx), mn)
+from src.utils import clamp
 
 class Entity:
     def move_and_collide(self, delta: Vec2):

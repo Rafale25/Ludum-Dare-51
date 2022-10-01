@@ -38,6 +38,8 @@ class MyGame(arcade.Window):
         self.player = Player(x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
         self.enemy_manager = EnemyManager()
 
+        self.partial_dt = 0
+
     def tile_quantize(self, x, y):
         return Vec2(int(x / GRID_SCALE) * GRID_SCALE, int(y / GRID_SCALE) * GRID_SCALE)
 
@@ -113,8 +115,14 @@ class MyGame(arcade.Window):
         #         color=arcade.color.RED)
 
     def on_update(self, dt):
-        self.player.update(dt)
-        self.enemy_manager.update(dt)
+        self.partial_dt += dt
+        DT = 1/60
+        if self.partial_dt > 1:
+            self.partial_dt = 1
+        while self.partial_dt > DT:
+            self.partial_dt -= DT
+            self.player.update(DT)
+            self.enemy_manager.update(DT)
 
     # https://api.arcade.academy/en/latest/arcade.key.html
     def on_key_press(self, key, key_modifiers):
