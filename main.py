@@ -8,6 +8,7 @@ from src.consts import *
 from src.player import Player
 from src.enemy_mananager import EnemyManager
 from src.dijsktra import PathFindingMap
+from src.vec import Vec2
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -38,11 +39,14 @@ class MyGame(arcade.Window):
         self.player = Player(self, x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
         self.enemy_manager = EnemyManager(self)
 
+    def tile_quantize(self, x, y):
+        return Vec2(int(x / GRID_SCALE) * GRID_SCALE, int(y / GRID_SCALE) * GRID_SCALE)
+
     def tile_at(self, x, y):
         x /= GRID_SCALE
         y /= GRID_SCALE
         if 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT:
-            return self.grid[round(y) * GRID_WIDTH + round(x)]
+            return self.grid[int(y) * GRID_WIDTH + int(x)]
         else:
             return TILE_WALL
 
