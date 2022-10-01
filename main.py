@@ -32,7 +32,6 @@ class MyGame(arcade.Window):
             self.grid[i] = TILE_WALL if random.random() > 0.8 else TILE_EMPTY
 
         self.pathFindingMap = PathFindingMap(self)
-        # self.pathFindingMap.compute(GRID_WIDTH/2, GRID_HEIGHT/2)
         self.pathFindingMap.compute(0, 0)
 
         self.player = Player(self, x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
@@ -48,6 +47,9 @@ class MyGame(arcade.Window):
 
     def isIndexInGrid(self, i):
         return 0 <= i < GRID_WIDTH * GRID_HEIGHT
+
+    def isXYInGrid(self, x, y):
+        return 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT
 
     def toI(self, x, y):
         return int(y) * GRID_WIDTH + int(x)
@@ -73,31 +75,34 @@ class MyGame(arcade.Window):
                 height=GRID_SCALE,
                 color=(0,0,0) if (self.grid[i] == 1) != self.enemy_manager.rage_mode else (150,150,150))
 
-        ## draws dijsktra map
+        ## draws gradient map
         # for i in range(GRID_HEIGHT * GRID_WIDTH):
         #     y = i // GRID_WIDTH
         #     x = i % GRID_WIDTH
-        #     arcade.draw_text(str(self.dijkstra_map[i]),
-        #         start_x=x*GRID_SCALE,
-        #         start_y=y*GRID_SCALE,
-        #         color=arcade.color.RED)
 
-        ## draws gradient map
-        for i in range(GRID_HEIGHT * GRID_WIDTH):
-            y = i // GRID_WIDTH
-            x = i % GRID_WIDTH
-
-            startx = x*GRID_SCALE + GRID_SCALE/2
-            starty = y*GRID_SCALE + GRID_SCALE/2
-            arcade.draw_line(
-                startx,
-                starty,
-                startx + self.pathFindingMap.gradient[i].x,
-                starty + self.pathFindingMap.gradient[i].y,
-                arcade.color.RED, line_width=0.2)
+        #     startx = x*GRID_SCALE + GRID_SCALE/2
+        #     starty = y*GRID_SCALE + GRID_SCALE/2
+        #     arcade.draw_line(
+        #         startx,
+        #         starty,
+        #         startx + self.pathFindingMap.gradient[i].x,
+        #         starty + self.pathFindingMap.gradient[i].y,
+        #         arcade.color.RED, line_width=0.2)
 
         self.player.draw()
         self.enemy_manager.draw()
+
+
+        ## draws dijsktra map
+        # arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+        # for i in range(GRID_HEIGHT * GRID_WIDTH):
+        #     y = i // GRID_WIDTH
+        #     x = i % GRID_WIDTH
+        #     arcade.draw_text(str(self.pathFindingMap.dijkstra[i]),
+        #         start_x=x* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
+        #         start_y=y* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
+        #         color=arcade.color.RED)
+
 
     def on_update(self, dt):
         self.player.update(dt)

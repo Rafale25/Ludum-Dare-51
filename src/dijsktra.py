@@ -27,7 +27,7 @@ class PathFindingMap:
 
             for gx, gy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
                 try:
-                    if self.dijkstra[self.game.toI(x+gx, y+gy)] < self.dijkstra[i]:
+                    if self.dijkstra[self.game.toI(x+gx, y+gy)] <= self.dijkstra[i]:
                         v += Vec2(gx, gy)
                 except IndexError:
                     pass
@@ -53,7 +53,7 @@ class PathFindingMap:
         dijkstra_map = [-2] * GRID_WIDTH * GRID_HEIGHT
 
         indices = []
-        nextIndices = [ int(py) * GRID_WIDTH + int(px) ]
+        nextIndices = [ (int(py) * GRID_WIDTH + int(px)) ]
 
         distance = 0
 
@@ -71,6 +71,8 @@ class PathFindingMap:
 
                     x, y = self.game.toXY(index)
                     for nx, ny in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+                        if not self.game.isXYInGrid(x+nx, y+ny): continue
+
                         neighbour_index = self.game.toI(x + nx, y + ny)
                         nextIndices.append(neighbour_index)
 
