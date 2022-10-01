@@ -13,7 +13,7 @@ SPAWN_DELAY = 0.5
 RAGE_DELAY = 10
 ENEMY_SPEED = 10
 
-MAX_VEL = 1.0
+MAX_VEL = 0.8
 TURNING_WEIGHT = 0.04
 
 @dataclass
@@ -31,10 +31,10 @@ class EnemyManager:
 
     def on_collision(self, enemy, player):
         if self.rage_mode:
-            print("Enemy died")
+            # print("Enemy died")
             enemy.dead = True
         else:
-            print("Player died")
+            # print("Player died")
             pass # TODO kill the player D:
 
     def update(self, dt):
@@ -50,8 +50,7 @@ class EnemyManager:
         player = ctx.game.player
         for enemy in self.enemies:
             delta = player.pos - enemy.pos
-            ln = delta.len()
-            delta /= ln
+            ln = delta.normalize()
 
             enemy_grid_x = int(enemy.pos.x / GRID_SCALE)
             enemy_grid_y = int(enemy.pos.y / GRID_SCALE)

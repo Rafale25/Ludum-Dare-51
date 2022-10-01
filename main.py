@@ -1,5 +1,6 @@
-from math import dist
+from math import dist, sin
 import random
+import time
 from collections import defaultdict
 
 import arcade
@@ -15,10 +16,31 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Ludum Dare 51"
 
-class MyGame(arcade.Window):
+class StartView(arcade.View):
+    def on_draw(self):
+        self.clear()
 
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title)
+        arcade.draw_text(
+        text="Press SPACE to start !!",
+        bold=True,
+        font_size=42,
+        start_x=SCREEN_WIDTH/2,
+        start_y=SCREEN_HEIGHT/2,
+        anchor_x="center",
+        anchor_y="center",
+        rotation=sin(time.time() * 3) * 10)
+
+    def on_update(self, dt):
+        pass
+
+    def on_key_press(self, key, key_modifiers):
+        if key == arcade.key.SPACE:
+            ctx.game = GameView()
+            self.window.show_view(ctx.game)
+
+class GameView(arcade.View):
+    def __init__(self):
+        super().__init__()
 
         self.pressed = defaultdict(bool)
         arcade.set_background_color(arcade.color.AMAZON)
@@ -65,16 +87,16 @@ class MyGame(arcade.Window):
 
     def on_draw(self):
         self.clear()
-        arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
+        # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
 
-        # VIEWPORT_WIDTH = SCREEN_WIDTH / 20
-        # VIEWPORT_HEIGHT = SCREEN_HEIGHT / 20
-        # arcade.set_viewport(
-        #     left=self.player.pos.x - VIEWPORT_WIDTH/2,
-        #     right=self.player.pos.x + VIEWPORT_WIDTH/2,
-        #     bottom=self.player.pos.y - VIEWPORT_HEIGHT/2,
-        #     top=self.player.pos.y + VIEWPORT_HEIGHT/2
-        # )
+        VIEWPORT_WIDTH = SCREEN_WIDTH / 20
+        VIEWPORT_HEIGHT = SCREEN_HEIGHT / 20
+        arcade.set_viewport(
+            left=self.player.pos.x - VIEWPORT_WIDTH/2,
+            right=self.player.pos.x + VIEWPORT_WIDTH/2,
+            bottom=self.player.pos.y - VIEWPORT_HEIGHT/2,
+            top=self.player.pos.y + VIEWPORT_HEIGHT/2
+        )
 
         for i in range(GRID_HEIGHT * GRID_WIDTH):
             y = i // GRID_WIDTH
@@ -91,18 +113,19 @@ class MyGame(arcade.Window):
         self.enemy_manager.draw()
 
         ## draws gradient map
-        for i in range(GRID_HEIGHT * GRID_WIDTH):
-            y = i // GRID_WIDTH
-            x = i % GRID_WIDTH
+        if self.pathFindingMap.gradient:
+            for i in range(GRID_HEIGHT * GRID_WIDTH):
+                y = i // GRID_WIDTH
+                x = i % GRID_WIDTH
 
-            startx = x*GRID_SCALE + GRID_SCALE/2
-            starty = y*GRID_SCALE + GRID_SCALE/2
-            arcade.draw_line(
-                startx,
-                starty,
-                startx + self.pathFindingMap.gradient[i].x,
-                starty + self.pathFindingMap.gradient[i].y,
-                arcade.color.RED, line_width=0.2)
+                startx = x*GRID_SCALE + GRID_SCALE/2
+                starty = y*GRID_SCALE + GRID_SCALE/2
+                arcade.draw_line(
+                    startx,
+                    starty,
+                    startx + self.pathFindingMap.gradient[i].x,
+                    starty + self.pathFindingMap.gradient[i].y,
+                    arcade.color.RED, line_width=0.2)
 
         ## draws dijsktra map
         # arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
@@ -142,7 +165,11 @@ class MyGame(arcade.Window):
 
 
 def main():
-    ctx.game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+
+    startView = StartView()
+    window.show_view(startView)
+
     arcade.run()
 
 if __name__ == "__main__":
