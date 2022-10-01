@@ -32,7 +32,8 @@ class MyGame(arcade.Window):
             self.grid[i] = TILE_WALL if random.random() > 0.8 else TILE_EMPTY
 
         self.pathFindingMap = PathFindingMap(self)
-        self.pathFindingMap.compute(GRID_WIDTH/2, GRID_HEIGHT/2)
+        # self.pathFindingMap.compute(GRID_WIDTH/2, GRID_HEIGHT/2)
+        # self.pathFindingMap.compute(0, 0)
 
         self.player = Player(self, x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
         self.enemy_manager = EnemyManager(self)
@@ -57,7 +58,7 @@ class MyGame(arcade.Window):
     def on_draw(self):
         arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
         # self.pathFindingMap.compute(self.player.pos.x/GRID_SCALE, self.player.pos.y//GRID_SCALE)
-        self.pathFindingMap.compute(0, 0)
+        # self.pathFindingMap.compute(0, 0)
 
         self.clear()
 
@@ -82,14 +83,14 @@ class MyGame(arcade.Window):
         #         color=arcade.color.RED)
 
         ## draws gradient map
-        for i in range(GRID_HEIGHT * GRID_WIDTH):
-            y = i // GRID_WIDTH
-            x = i % GRID_WIDTH
-            arcade.draw_line(
-                x*GRID_SCALE, y*GRID_SCALE,
-                x*GRID_SCALE + self.pathFindingMap.gradient[i].x,
-                y*GRID_SCALE + self.pathFindingMap.gradient[i].y,
-                arcade.color.RED, line_width=0.2)
+        # for i in range(GRID_HEIGHT * GRID_WIDTH):
+        #     y = i // GRID_WIDTH
+        #     x = i % GRID_WIDTH
+        #     arcade.draw_line(
+        #         x*GRID_SCALE, y*GRID_SCALE,
+        #         x*GRID_SCALE + self.pathFindingMap.gradient[i].x,
+        #         y*GRID_SCALE + self.pathFindingMap.gradient[i].y,
+        #         arcade.color.RED, line_width=0.2)
 
         self.player.draw()
         self.enemy_manager.draw()

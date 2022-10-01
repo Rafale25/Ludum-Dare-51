@@ -18,16 +18,19 @@ class PathFindingMap:
 
         for i in range(GRID_WIDTH * GRID_HEIGHT):
 
+            if self.dijkstra[i] < 0:
+                gradient[i] = Vec2(0.0, 0.0)
+                continue
+
             v = Vec2(0.0, 0.0)
             x, y = self.game.toXY(i)
 
-            # for gx, gy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
-            for gy in range(-1, 1):
-                for gx in range(-1, 1):
-                    # print(self.game.toI(x+gx, y+gy))
-                    # if gx == 0 and gy == 0: continue
+            for gx, gy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+                try:
                     if self.dijkstra[self.game.toI(x+gx, y+gy)] < self.dijkstra[i]:
                         v += Vec2(gx, gy)
+                except IndexError:
+                    pass
 
             try:
                 v.normalize()
