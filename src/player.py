@@ -8,12 +8,20 @@ def clamp(x, mn, mx):
 
 class Player:
     def __init__(self, game, x, y):
-        self.pos = Vec2(x, y)
-
         self.game = game
+
+        self.pos = Vec2(x, y)
+        self.last_tile = (-1, -1)
+
+    def on_tile_changed(self):
+        self.game.pathFindingMap.compute(*self.last_tile)
 
     def update(self, dt):
         current_tile = self.game.tile_quantize(*self.pos)
+        if current_tile != self.last_tile:
+            self.last_tile = current_tile
+            self.on_tile_changed()
+
         dx = self.game.pressed[arcade.key.D] - self.game.pressed[arcade.key.A]
         dy = self.game.pressed[arcade.key.W] - self.game.pressed[arcade.key.S]
         delta = Vec2(dx, dy)

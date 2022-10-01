@@ -1,5 +1,5 @@
 # bottom left of map is at (0, 0)
-GRID_SCALE = 4.0
+GRID_SCALE = 4
 GRID_WIDTH = 32
 GRID_HEIGHT = 18
 

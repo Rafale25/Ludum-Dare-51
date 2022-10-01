@@ -26,8 +26,11 @@ class PathFindingMap:
             x, y = self.game.toXY(i)
 
             for gx, gy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+                if not self.game.isXYInGrid(x+gx, y+gy): continue
+
                 try:
-                    if self.dijkstra[self.game.toI(x+gx, y+gy)] <= self.dijkstra[i]:
+                    index = self.game.toI(x+gx, y+gy)
+                    if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
                         v += Vec2(gx, gy)
                 except IndexError:
                     pass

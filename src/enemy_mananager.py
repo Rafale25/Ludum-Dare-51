@@ -1,3 +1,4 @@
+from decimal import DivisionByZero
 import math
 from dataclasses import dataclass
 
@@ -36,7 +37,7 @@ class EnemyManager:
         self.until_spawn -= dt
         if self.until_spawn < 0:
             self.until_spawn += SPAWN_DELAY
-            self.enemies.append(Enemy(Vec2(0, 0))) # TODO select a better location
+            self.enemies.append(Enemy(Vec2(2, 2))) # TODO select a better location
         self.until_rage -= dt
         if self.until_rage < 0:
             self.until_rage += RAGE_DELAY
@@ -45,11 +46,16 @@ class EnemyManager:
         player = self.game.player
         for enemy in self.enemies:
             delta = player.pos - enemy.pos
-            ln = max(1e-8, delta.len())
+            ln = delta.len()
             delta /= ln
             if self.rage_mode:
                 delta *= -1
-            enemy.pos += delta * ENEMY_SPEED * dt
+
+            pathFindDir = self.game.pathFindingMap.gradient[int(enemy.pos.y / GRID_SCALE) * GRID_WIDTH + int(enemy.pos.x / GRID_SCALE)]
+            enemy.pos += (delta + pathFindDir) * ENEMY_SPEED * dt
+            # enemy.pos += (pathFindDir) * ENEMY_SPEED * dt
+
+
 
             # TODO pathfind
 

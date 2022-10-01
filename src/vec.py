@@ -102,7 +102,10 @@ class VecBase:
         Returns a normalized copy of vector.
         """
         ln = self.len()
-        return self.__class__(*map(lambda x: x / ln, self))
+        if ln != 0:
+            return self.__class__(*map(lambda x: x / ln, self))
+        else:
+            return self.copy()
 
     def len_sqr(self):
         """
