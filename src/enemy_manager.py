@@ -1,4 +1,3 @@
-from decimal import DivisionByZero
 import math
 from dataclasses import dataclass
 
@@ -49,15 +48,20 @@ class EnemyManager:
             ln = delta.len()
             delta /= ln
 
-            pathFindDir = self.game.pathFindingMap.gradient[int(enemy.pos.y / GRID_SCALE) * GRID_WIDTH + int(enemy.pos.x / GRID_SCALE)]
+            enemy_grid_x = int(enemy.pos.x / GRID_SCALE)
+            enemy_grid_y = int(enemy.pos.y / GRID_SCALE)
+
+            pathFindDir = Vec2(0.0, 0.0)
+
+            if self.game.isXYInGrid(enemy_grid_x, enemy_grid_y):
+                pathFindDir = self.game.pathFindingMap.gradient[enemy_grid_y * GRID_WIDTH + enemy_grid_x]
+
             direction = (delta*0.25 + pathFindDir).normalized()
 
             if self.rage_mode:
-                direction *= -1
+                direction *= -0.8
 
             enemy.pos += direction * ENEMY_SPEED * dt
-
-            # TODO pathfind
 
             if ln < PLAYER_SIZE:
                 self.on_collision(enemy, player)

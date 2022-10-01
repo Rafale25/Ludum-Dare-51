@@ -6,7 +6,7 @@ import arcade
 
 from src.consts import *
 from src.player import Player
-from src.enemy_mananager import EnemyManager
+from src.enemy_manager import EnemyManager
 from src.dijsktra import PathFindingMap
 from src.vec import Vec2
 
