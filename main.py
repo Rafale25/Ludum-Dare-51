@@ -33,7 +33,7 @@ class MyGame(arcade.Window):
 
         self.pathFindingMap = PathFindingMap(self)
         # self.pathFindingMap.compute(GRID_WIDTH/2, GRID_HEIGHT/2)
-        # self.pathFindingMap.compute(0, 0)
+        self.pathFindingMap.compute(0, 0)
 
         self.player = Player(self, x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
         self.enemy_manager = EnemyManager(self)
@@ -67,8 +67,8 @@ class MyGame(arcade.Window):
             x = i % GRID_WIDTH
 
             arcade.draw_rectangle_filled(
-                center_x=x*GRID_SCALE,
-                center_y=y*GRID_SCALE,
+                center_x=x*GRID_SCALE + GRID_SCALE/2,
+                center_y=y*GRID_SCALE + GRID_SCALE/2,
                 width=GRID_SCALE,
                 height=GRID_SCALE,
                 color=(0,0,0) if (self.grid[i] == 1) != self.enemy_manager.rage_mode else (150,150,150))
@@ -86,10 +86,14 @@ class MyGame(arcade.Window):
         # for i in range(GRID_HEIGHT * GRID_WIDTH):
         #     y = i // GRID_WIDTH
         #     x = i % GRID_WIDTH
+
+        #     startx = x*GRID_SCALE + GRID_SCALE/2
+        #     starty = y*GRID_SCALE + GRID_SCALE/2
         #     arcade.draw_line(
-        #         x*GRID_SCALE, y*GRID_SCALE,
-        #         x*GRID_SCALE + self.pathFindingMap.gradient[i].x,
-        #         y*GRID_SCALE + self.pathFindingMap.gradient[i].y,
+        #         startx,
+        #         starty,
+        #         startx + self.pathFindingMap.gradient[i].x,
+        #         starty + self.pathFindingMap.gradient[i].y,
         #         arcade.color.RED, line_width=0.2)
 
         self.player.draw()
