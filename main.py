@@ -37,7 +37,7 @@ class MyGame(arcade.Window):
         self.player = Player(self, x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
         self.enemy_manager = EnemyManager(self)
 
-        self.pathFindingMap.compute(self.player.pos.x/GRID_SCALE, self.player.pos.y/GRID_SCALE)
+        # self.pathFindingMap.compute(self.player.pos.x/GRID_SCALE, self.player.pos.y/GRID_SCALE)
 
     def tile_quantize(self, x, y):
         return Vec2(int(x / GRID_SCALE) * GRID_SCALE, int(y / GRID_SCALE) * GRID_SCALE)

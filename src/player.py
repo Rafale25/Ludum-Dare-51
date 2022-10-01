@@ -14,7 +14,7 @@ class Player:
         self.last_tile = (-1, -1)
 
     def on_tile_changed(self):
-        self.game.pathFindingMap.compute(*self.last_tile)
+        self.game.pathFindingMap.compute(self.last_tile.x // GRID_SCALE, self.last_tile.y // GRID_SCALE)
 
     def update(self, dt):
         current_tile = self.game.tile_quantize(*self.pos)
