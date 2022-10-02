@@ -21,4 +21,4 @@ SCORE_PER_SECOND = 100
 
 FONT = "assets/BebasNeue-Regular.ttf"
 
-SOUND_GAME_OVER = arcade.Sound(":resources:sounds/error4.wav")
+SOUND_GAME_OVER = arcade.load_sound(":resources:sounds/error4.wav")
