@@ -144,8 +144,6 @@ class GameView(arcade.View):
             self.shape_list_map_1.append(shape_1)
             self.shape_list_map_2.append(shape_2)
 
-        # print(self.shape_list_map_1[0].x)
-
         self.pathFindingMap = PathFindingMap(self)
 
         self.player = Player(x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
@@ -282,15 +280,6 @@ class GameView(arcade.View):
 
     def on_key_release(self, key, key_modifiers):
         self.pressed[key] = False
-
-    def on_mouse_motion(self, x, y, delta_x, delta_y):
-        pass
-
-    def on_mouse_press(self, x, y, button, key_modifiers):
-        pass
-
-    def on_mouse_release(self, x, y, button, key_modifiers):
-        pass
 
 
 def main():
