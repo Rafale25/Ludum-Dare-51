@@ -1,1 +1,2 @@
 arcade==2.6.16
+opensimplex==0.4.3

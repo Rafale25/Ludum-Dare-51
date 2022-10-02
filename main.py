@@ -2,9 +2,9 @@ from math import dist, sin, pi
 import random
 import time
 from collections import defaultdict
-from tkinter import font
 
 import arcade
+import opensimplex
 
 from src.consts import *
 from src.player import Player
@@ -20,8 +20,9 @@ SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Ludum Dare 51"
 
 RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
-VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO
-VIEWPORT_HEIGHT = 8*GRID_SCALE
+
+VIEWPORT_WIDTH = 8*2*GRID_SCALE * RATIO
+VIEWPORT_HEIGHT = 8*2*GRID_SCALE
 
 class StartView(arcade.View):
     def on_show_view(self):
@@ -105,8 +106,14 @@ class GameView(arcade.View):
         # x = i % GRID_WIDTH
         self.grid = [0] * GRID_WIDTH * GRID_HEIGHT
 
+        # opensimplex.seed(int(time.time()))
+        opensimplex.seed(1234)
         for i in range(GRID_HEIGHT * GRID_WIDTH):
-            self.grid[i] = TILE_WALL if random.random() > 0.8 else TILE_EMPTY
+            y = i // GRID_WIDTH
+            x = i % GRID_WIDTH
+
+            self.grid[i] = TILE_WALL if opensimplex.noise2(x*0.7, y*0.7) > 0.3 else TILE_EMPTY
+            # self.grid[i] = TILE_WALL if random.random() > 0.8 else TILE_EMPTY
 
         self.shape_list_map_1 = arcade.ShapeElementList()
         self.shape_list_map_2 = arcade.ShapeElementList()
@@ -140,6 +147,7 @@ class GameView(arcade.View):
         self.score = 0
 
     def end_game(self):
+        arcade.play_sound(SOUND_GAME_OVER)
         self.window.show_view(GameOverView(self.score))
 
     def tile_quantize(self, x, y):
