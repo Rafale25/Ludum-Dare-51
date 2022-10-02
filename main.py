@@ -175,7 +175,7 @@ class GameView(arcade.View):
         self.player.draw()
         self.enemy_manager.draw()
 
-        
+
 
         ## draws gradient map
         if False:
@@ -192,7 +192,7 @@ class GameView(arcade.View):
                         startx + self.pathFindingMap.gradient[i].x,
                         starty + self.pathFindingMap.gradient[i].y,
                         arcade.color.RED, line_width=0.2)
-            
+
         ## draws dijsktra map
         # arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
         # for i in range(GRID_HEIGHT * GRID_WIDTH):
@@ -207,7 +207,7 @@ class GameView(arcade.View):
         tm = (self.enemy_manager.until_rage + time_factor/2) % RAGE_DELAY
         if tm < time_factor:
             arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
-            color = COLOR_BRIGHT if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK            
+            color = COLOR_BRIGHT if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
             border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
             arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
 
