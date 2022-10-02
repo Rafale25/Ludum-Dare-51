@@ -122,18 +122,18 @@ class PathFindingMap:
             if dijkstra_map[index] != -2: continue
 
             if self.game.grid[index] == TILE_EMPTY:
-                dijkstra_map[index] = distance
-
                 x, y = self.game.toXY(index)
+                if ctx.game.enemy_manager.rage_mode:
+                    pos = ctx.game.player.pos
+                    dijkstra_map[index] = distance - (hypot(x-pos.x, y+pos.y)) * 0.1
+                else:
+                    dijkstra_map[index] = distance
+
                 for nx, ny in ((1, 0), (0, 1), (-1, 0), (0, -1)):
                     if not self.game.isXYInGrid(x+nx, y+ny): continue
 
-                    neighbour_index = self.game.toI(x + nx, y + ny)
-                    if ctx.game.enemy_manager.rage_mode:
-                        pos = ctx.game.player.pos
-                        new_cost = distance + 1 + (hypot(x+nx-pos.x, y+ny-pos.y))
-                    else:
-                        new_cost = distance + 1 + costs[index]
+                    neighbour_index = self.game.toI(x + nx, y + ny)     
+                    new_cost = distance + 1 + costs[index]
                     heappush(indices, (new_cost, neighbour_index))
 
             elif self.game.grid[index] == TILE_WALL:
