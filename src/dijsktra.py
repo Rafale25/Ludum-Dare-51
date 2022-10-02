@@ -103,7 +103,7 @@ class PathFindingMap:
         for enemy in ctx.game.enemy_manager.enemies:
             ind = ctx.game.index_at(*enemy.pos)
             if ind is not None:
-                costs[ind] += 0.1
+                costs[ind] += 1
         return costs
 
     def compute_dijsktra2(self, px, py):
