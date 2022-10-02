@@ -22,3 +22,4 @@ SCORE_PER_SECOND = 100
 FONT = "assets/BebasNeue-Regular.ttf"
 
 SOUND_GAME_OVER = arcade.load_sound(":resources:sounds/error4.wav")
+SOUNDS_KILL = [arcade.load_sound(f":resources:sounds/hit{i}.wav") for i in (1, 3, 5)]

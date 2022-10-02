@@ -1,5 +1,6 @@
 import math
 from dataclasses import dataclass
+import random
 
 import arcade
 
@@ -20,7 +21,7 @@ TURNING_WEIGHT = 0.03
 CELL_SIZE = PLAYER_SIZE
 
 @dataclass
-class Enemy(Entity):
+class Enemy(Entity): #, arcade.Shape
     pos: Vec2
     vel: Vec2
     dead: bool = False
@@ -33,6 +34,7 @@ class EnemyManager:
         self.until_rage = RAGE_DELAY
         self.rage_mode = False
 
+        self.shape_list = arcade.ShapeElementList()
 
         ## acceleration structure
         self.bucket = []
@@ -69,6 +71,8 @@ class EnemyManager:
         if self.rage_mode:
             enemy.dead = True
             ctx.game.score += SCORE_KILL
+            if ctx.game.alloc_sound():
+                arcade.play_sound(random.choice(SOUNDS_KILL))
         else:
             ctx.game.end_game()
 

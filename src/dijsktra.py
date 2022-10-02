@@ -1,3 +1,5 @@
+from heapq import heappop, heappush
+
 from src.consts import *
 from src.vec import Vec2
 from src import ctx
@@ -10,7 +12,7 @@ class PathFindingMap:
         self.gradient = None
 
     def compute(self, x, y):
-        self.computeDijsktra(x, y)
+        self.compute_dijsktra2(x, y)
         self.computeGradient()
 
     def computeGradient(self):
@@ -93,5 +95,53 @@ class PathFindingMap:
                     pass
 
             distance += 1
+
+        self.dijkstra = dijkstra_map
+
+    def calc_costs(self):
+        costs = [0] * GRID_WIDTH * GRID_HEIGHT
+        for enemy in ctx.game.enemy_manager.enemies:
+            ind = ctx.game.index_at(*enemy.pos)
+            if ind is not None:
+                costs[ind] += 0.1
+        return costs
+
+    def compute_dijsktra2(self, px, py):
+        #TODO: add error check
+
+        # -1 : Wall
+        # -2 : not checked
+        # else: distance from (x, y)
+
+        dijkstra_map = [-2] * GRID_WIDTH * GRID_HEIGHT
+        costs = self.calc_costs()
+
+        indices = [(0, (int(py) * GRID_WIDTH + int(px)))]
+
+        distance = 0
+
+        while len(indices) > 0:
+            distance, index = heappop(indices)
+
+            for index in indices:
+
+                if not self.game.isIndexInGrid(index): continue
+                if dijkstra_map[index] != -2: continue
+
+                if self.game.grid[index] == TILE_EMPTY:
+                    dijkstra_map[index] = distance
+
+                    x, y = self.game.toXY(index)
+                    for nx, ny in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+                        if not self.game.isXYInGrid(x+nx, y+ny): continue
+
+                        neighbour_index = self.game.toI(x + nx, y + ny)
+                        heappush(indices, (distance+1+costs[index], neighbour_index))
+
+                elif self.game.grid[index] == TILE_WALL:
+                    dijkstra_map[index] = -1
+
+                else:
+                    pass
 
         self.dijkstra = dijkstra_map

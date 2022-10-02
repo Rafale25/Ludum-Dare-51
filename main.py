@@ -138,6 +138,8 @@ class GameView(arcade.View):
             self.shape_list_map_1.append(shape_1)
             self.shape_list_map_2.append(shape_2)
 
+        # print(self.shape_list_map_1[0].x)
+
         self.pathFindingMap = PathFindingMap(self)
 
         self.player = Player(x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
@@ -145,6 +147,7 @@ class GameView(arcade.View):
 
         self.partial_dt = 0
         self.score = 0
+        self.sound_limit = 0
 
     def end_game(self):
         arcade.play_sound(SOUND_GAME_OVER)
@@ -152,6 +155,14 @@ class GameView(arcade.View):
 
     def tile_quantize(self, x, y):
         return Vec2(int(x / GRID_SCALE) * GRID_SCALE, int(y / GRID_SCALE) * GRID_SCALE)
+
+    def index_at(self, x, y):
+        x /= GRID_SCALE
+        y /= GRID_SCALE
+        if 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT:
+            return int(y) * GRID_WIDTH + int(x)
+        else:
+            return None
 
     def tile_at(self, x, y):
         x /= GRID_SCALE
@@ -194,7 +205,11 @@ class GameView(arcade.View):
 
 
         self.player.draw()
+
+        t1 = perf_counter()
         self.enemy_manager.draw()
+        t2 = perf_counter()
+        print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
 
 
 
@@ -234,9 +249,17 @@ class GameView(arcade.View):
             arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
         arcade.draw_text(f"Score: {int(self.score)}", 10, 10, color=arcade.color.SAE, font_name=FONT)
 
+    def alloc_sound(self):
+        if self.sound_limit > 1:
+            self.sound_limit -= 1
+            return True
+        return False
+
     def on_update(self, dt):
         self.score += SCORE_PER_SECOND * dt
         self.partial_dt += dt
+        if self.sound_limit < 8:
+            self.sound_limit += 8 * dt
         DT = 1/60
         if self.partial_dt > 1:
             self.partial_dt = 1
@@ -245,9 +268,6 @@ class GameView(arcade.View):
             self.player.update(DT)
 
             self.enemy_manager.update(DT)
-            # t1 = perf_counter()
-            # t2 = perf_counter()
-            # print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
 
             self.camera_center = self.camera_center + (self.player.pos - self.camera_center) * 0.3
 
@@ -271,6 +291,7 @@ def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
     arcade.load_font("assets/BebasNeue-Regular.ttf")
+    arcade.play_sound(SOUND_GAME_OVER, volume=0) # Let arcade initialize sound so it doesn't freeze later
 
     startView = StartView()
     window.show_view(startView)
