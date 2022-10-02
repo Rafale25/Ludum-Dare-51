@@ -16,11 +16,16 @@ ENEMY_SPEED = 10
 MAX_VEL = 0.8
 TURNING_WEIGHT = 0.04
 
+
+## acceleration structure
+CELL_SIZE = PLAYER_SIZE
+
 @dataclass
 class Enemy(Entity):
     pos: Vec2
     vel: Vec2
     dead: bool = False
+    hash: int = 0
 
 class EnemyManager:
     def __init__(self):
@@ -28,6 +33,38 @@ class EnemyManager:
         self.until_spawn = -5
         self.until_rage = RAGE_DELAY
         self.rage_mode = False
+
+
+        ## acceleration structure
+        self.bucket = []
+        self.count = []
+
+    def cellCoord(self, x, y, size):
+        return ( math.floor(x / size), math.floor(y/size) )
+
+    def hashCoords(self, x, y, count):
+        # h = y*675 + x
+        h = y*(GRID_WIDTH*GRID_SCALE) + x
+        return int(math.fabs(h)) % count
+
+    def computeAccelerationStructure(self):
+        n = len(self.enemies)
+        self.count = [0] * (n+1)
+        self.bucket = [None] * (n+1)
+
+        for enemy in self.enemies:
+            cell = self.cellCoord(enemy.pos.x, enemy.pos.y, CELL_SIZE)
+            enemy.hash = self.hashCoords(cell[0], cell[1], n)
+
+            self.count[enemy.hash] += 1
+
+        # could use itertools.accumulate ot numpy.cumsum
+        for i in range(1, n):
+            self.count[i] += self.count[i - 1]
+
+        for enemy in self.enemies:
+            self.count[enemy.hash] -= 1
+            self.bucket[ self.count[enemy.hash] ] = enemy
 
     def on_collision(self, enemy, player):
         if self.rage_mode:
@@ -45,6 +82,35 @@ class EnemyManager:
             self.until_rage += RAGE_DELAY
             self.rage_mode = not self.rage_mode
 
+        self.computeAccelerationStructure()
+
+        self.update_movement(dt)
+        self.enemies[:] = [enemy for enemy in self.enemies if not enemy.dead]
+
+    def compute_self_collision(self, me):
+        n = len(self.enemies)
+
+        for y in (-1, 0, 1):
+            for x in (-1, 0, 1):
+                cell = self.cellCoord(me.pos.x, me.pos.y, CELL_SIZE)
+
+                cellHash = self.hashCoords(cell[0] + x, cell[1] + y, n)
+                start = self.count[cellHash]
+
+                end = self.count[cellHash + 1]
+
+                for i in range(start, end):
+                    if i >= n: break
+                    other = self.bucket[i]
+                    if me is other: continue
+
+                    d = other.pos - me.pos
+                    l = d.len()
+                    if 0.0 < l < PLAYER_SIZE:
+                        me.vel -= d.normalized() * (1.0/ (l*10.0) ) ## i tried something, not too bad
+
+
+    def update_movement(self, dt):
         player = ctx.game.player
         for enemy in self.enemies:
             delta = player.pos - enemy.pos
@@ -66,12 +132,21 @@ class EnemyManager:
             enemy.vel += direction * TURNING_WEIGHT
             enemy.vel = enemy.vel.clamped(MAX_VEL)
 
+
+            self.compute_self_collision(enemy)
+            # ## enemy self collision
+            # for other in self.enemies:
+            #     if enemy is other: continue
+
+            #     d = other.pos - enemy.pos
+            #     l = d.len()
+            #     if l < PLAYER_SIZE:
+            #         enemy.vel -= d.normalized() * (1.0/ (l*10.0) ) ## i tried something, not too bad
+
             enemy.move_and_collide((enemy.vel) * ENEMY_SPEED * dt)
 
             if ln < PLAYER_SIZE:
                 self.on_collision(enemy, player)
-
-        self.enemies[:] = [enemy for enemy in self.enemies if not enemy.dead]
 
     def draw(self):
         for enemy in self.enemies:

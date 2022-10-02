@@ -12,6 +12,8 @@ from src.dijsktra import PathFindingMap
 from src.vec import Vec2
 from src import ctx
 
+from time import perf_counter
+
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Ludum Dare 51"
@@ -92,6 +94,29 @@ class GameView(arcade.View):
         for i in range(GRID_HEIGHT * GRID_WIDTH):
             self.grid[i] = TILE_WALL if random.random() > 0.8 else TILE_EMPTY
 
+        self.shape_list_map_1 = arcade.ShapeElementList()
+        self.shape_list_map_2 = arcade.ShapeElementList()
+        for i in range(GRID_HEIGHT * GRID_WIDTH):
+            y = i // GRID_WIDTH
+            x = i % GRID_WIDTH
+
+            shape_1 = arcade.create_rectangle_filled(
+                center_x=x*GRID_SCALE + GRID_SCALE/2,
+                center_y=y*GRID_SCALE + GRID_SCALE/2,
+                width=GRID_SCALE,
+                height=GRID_SCALE,
+                color=(0,0,0) if (self.grid[i] == TILE_WALL) else (150,150,150))
+
+            shape_2 = arcade.create_rectangle_filled(
+                center_x=x*GRID_SCALE + GRID_SCALE/2,
+                center_y=y*GRID_SCALE + GRID_SCALE/2,
+                width=GRID_SCALE,
+                height=GRID_SCALE,
+                color=(0,0,0) if (self.grid[i] == TILE_EMPTY) else (150,150,150))
+
+            self.shape_list_map_1.append(shape_1)
+            self.shape_list_map_2.append(shape_2)
+
         self.pathFindingMap = PathFindingMap(self)
 
         self.player = Player(x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
@@ -138,16 +163,11 @@ class GameView(arcade.View):
             top=self.player.pos.y + VIEWPORT_HEIGHT/2
         )
 
-        for i in range(GRID_HEIGHT * GRID_WIDTH):
-            y = i // GRID_WIDTH
-            x = i % GRID_WIDTH
+        if self.enemy_manager.rage_mode:
+            self.shape_list_map_2.draw()
+        else:
+            self.shape_list_map_1.draw()
 
-            arcade.draw_rectangle_filled(
-                center_x=x*GRID_SCALE + GRID_SCALE/2,
-                center_y=y*GRID_SCALE + GRID_SCALE/2,
-                width=GRID_SCALE,
-                height=GRID_SCALE,
-                color=(0,0,0) if (self.grid[i] == 1) != self.enemy_manager.rage_mode else (150,150,150))
 
         self.player.draw()
         self.enemy_manager.draw()
@@ -185,7 +205,11 @@ class GameView(arcade.View):
         while self.partial_dt > DT:
             self.partial_dt -= DT
             self.player.update(DT)
+
+            # t1 = perf_counter()
             self.enemy_manager.update(DT)
+            # t2 = perf_counter()
+            # print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
 
     # https://api.arcade.academy/en/latest/arcade.key.html
     def on_key_press(self, key, key_modifiers):

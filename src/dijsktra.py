@@ -24,7 +24,6 @@ class PathFindingMap:
             v = Vec2(0.0, 0.0)
             x, y = self.game.toXY(i)
 
-
             # size = 1
             # for gy in range(-size, size+1):
             #     for gx in range(-size, size+1):
@@ -35,14 +34,13 @@ class PathFindingMap:
                 try:
                     index = self.game.toI(x+gx, y+gy)
                     if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
-                        v += Vec2(gx, gy)
+                        # v += Vec2(gx, gy)
+                        v.x += gx
+                        v.y += gy
                 except IndexError:
                     pass
 
-            try:
-                v.normalize()
-            except ZeroDivisionError:
-                pass
+            v.normalize()
 
             gradient[i] = v
 
