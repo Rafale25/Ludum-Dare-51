@@ -1,4 +1,5 @@
 from heapq import heappop, heappush
+from math import hypot
 
 from src.consts import *
 from src.vec import Vec2
@@ -128,7 +129,12 @@ class PathFindingMap:
                     if not self.game.isXYInGrid(x+nx, y+ny): continue
 
                     neighbour_index = self.game.toI(x + nx, y + ny)
-                    heappush(indices, (distance+1+costs[index], neighbour_index))
+                    if ctx.game.enemy_manager.rage_mode:
+                        pos = ctx.game.player.pos
+                        new_cost = distance + 1 + (hypot(x+nx-pos.x, y+ny-pos.y))
+                    else:
+                        new_cost = distance + 1 + costs[index]
+                    heappush(indices, (new_cost, neighbour_index))
 
             elif self.game.grid[index] == TILE_WALL:
                 dijkstra_map[index] = -1

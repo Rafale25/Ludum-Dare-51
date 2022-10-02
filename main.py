@@ -45,7 +45,9 @@ class StartView(arcade.View):
             rotation=sin(time.time() * 3) * 10)
 
         # shape = pyglet.shapes.Rectangle(100, 0, 100, 100)
+        # self.ctx.pyglet_rendering()
         # shape.draw()
+
 
     def on_update(self, dt):
         pass

@@ -35,7 +35,7 @@ class Player(Entity):
         if ctx.game.enemy_manager.rage_mode:
             mx, my = self.last_tile.x // GRID_SCALE, self.last_tile.y // GRID_SCALE
             positions = [(0, 0), (GRID_WIDTH-1, 0), (0, GRID_HEIGHT-1), (GRID_WIDTH-1, GRID_HEIGHT-1)]
-            positions.remove(min(positions, key=lambda pos: (pos[0]-mx) ** 2 + (pos[1]-my) ** 2))
+            #positions.remove(min(positions, key=lambda pos: (pos[0]-mx) ** 2 + (pos[1]-my) ** 2))
             ctx.game.pathFindingMap.compute(positions)
         else:
             ctx.game.pathFindingMap.compute([(self.last_tile.x // GRID_SCALE, self.last_tile.y // GRID_SCALE)])

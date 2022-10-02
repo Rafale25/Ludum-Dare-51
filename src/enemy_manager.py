@@ -101,6 +101,8 @@ class EnemyManager:
     def compute_self_collision(self, me):
         n = len(self.enemies)
 
+        n_neighbours = 0
+
         for y in (-1, 0, 1):
             for x in (-1, 0, 1):
                 cell = self.cellCoord(me.pos.x, me.pos.y, CELL_SIZE)
