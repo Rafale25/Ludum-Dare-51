@@ -251,7 +251,8 @@ class GameView(arcade.View):
             color = COLOR_BRIGHT if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
             border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
             arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
-        arcade.draw_text(f"Score: {int(self.score)}", 10, 10, color=arcade.color.SAE, font_name=FONT)
+
+        arcade.draw_text(f"Score: {int(self.score)}", SCREEN_WIDTH/2, SCREEN_HEIGHT-25, color=arcade.color.SAE, font_name=FONT, font_size=16)
 
     def alloc_sound(self):
         if self.sound_limit > 1:

@@ -138,9 +138,9 @@ class EnemyManager:
 
             if self.rage_mode:
                 if ln < GRID_SCALE * 6:
-                    direction *= -1
+                    direction *= 1
                 else:
-                    direction *= -0.2
+                    direction *= 0.2
 
             enemy.vel += direction * TURNING_WEIGHT
             enemy.vel = enemy.vel.clamped(MAX_VEL)

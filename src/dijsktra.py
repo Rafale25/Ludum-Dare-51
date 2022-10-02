@@ -36,14 +36,9 @@ class PathFindingMap:
 
                 try:
                     index = self.game.toI(x+gx, y+gy)
-                    if ctx.game.enemy_manager.rage_mode:
-                        if self.dijkstra[index] >= 0 and self.dijkstra[index] > self.dijkstra[i]:
-                            v.x -= gx
-                            v.y -= gy
-                    else:
-                        if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
-                            v.x += gx
-                            v.y += gy
+                    if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
+                        v.x += gx
+                        v.y += gy
                 except IndexError:
                     pass
 
