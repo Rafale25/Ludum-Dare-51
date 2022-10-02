@@ -17,7 +17,6 @@ ENEMY_SPEED = 14
 MAX_VEL = 0.8
 TURNING_WEIGHT = 0.03
 
-
 ## acceleration structure
 CELL_SIZE = PLAYER_SIZE
 
@@ -101,8 +100,6 @@ class EnemyManager:
     def compute_self_collision(self, me):
         n = len(self.enemies)
 
-        n_neighbours = 0
-
         for y in (-1, 0, 1):
             for x in (-1, 0, 1):
                 cell = self.cellCoord(me.pos.x, me.pos.y, CELL_SIZE)
@@ -118,9 +115,11 @@ class EnemyManager:
                     if me is other: continue
 
                     d = other.pos - me.pos
+
                     l = d.len()
                     if 0.0 < l < PLAYER_SIZE:
                         me.vel -= d.normalized() * (1.0/ (l*10.0) ) ## i tried something, not too bad
+
 
     def update_movement(self, dt):
         player = ctx.game.player
@@ -138,22 +137,21 @@ class EnemyManager:
 
             if self.rage_mode:
                 delta *= -1
-                
+
             direction = (delta*0.25 + pathFindDir).normalized()
 
             if self.rage_mode:
                 if ln < GRID_SCALE * 6:
-                    direction *= 1
+                    direction *= -1
                 else:
-                    direction *= 0.2
+                    direction *= -0.2
 
             enemy.vel += direction * TURNING_WEIGHT
             enemy.vel = enemy.vel.clamped(MAX_VEL)
 
-
             self.compute_self_collision(enemy)
 
-            enemy.move_and_collide((enemy.vel) * ENEMY_SPEED * dt)
+            enemy.move_and_collide(enemy.vel * ENEMY_SPEED * dt)
 
             if ln < PLAYER_SIZE:
                 self.on_collision(enemy, player)

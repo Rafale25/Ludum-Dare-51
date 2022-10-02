@@ -37,9 +37,14 @@ class PathFindingMap:
 
                 try:
                     index = self.game.toI(x+gx, y+gy)
-                    if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
-                        v.x += gx
-                        v.y += gy
+                    if ctx.game.enemy_manager.rage_mode:
+                        if self.dijkstra[index] >= 0 and self.dijkstra[index] > self.dijkstra[i]:
+                            v.x -= gx
+                            v.y -= gy
+                    else:
+                        if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
+                            v.x += gx
+                            v.y += gy
                 except IndexError:
                     pass
 
@@ -123,16 +128,12 @@ class PathFindingMap:
 
             if self.game.grid[index] == TILE_EMPTY:
                 x, y = self.game.toXY(index)
-                if ctx.game.enemy_manager.rage_mode:
-                    pos = ctx.game.player.pos
-                    dijkstra_map[index] = distance - (hypot(x-pos.x, y+pos.y)) * 0.1
-                else:
-                    dijkstra_map[index] = distance
+                dijkstra_map[index] = distance
 
                 for nx, ny in ((1, 0), (0, 1), (-1, 0), (0, -1)):
                     if not self.game.isXYInGrid(x+nx, y+ny): continue
 
-                    neighbour_index = self.game.toI(x + nx, y + ny)     
+                    neighbour_index = self.game.toI(x + nx, y + ny)
                     new_cost = distance + 1 + costs[index]
                     heappush(indices, (new_cost, neighbour_index))
 

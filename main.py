@@ -218,7 +218,6 @@ class GameView(arcade.View):
         # print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
 
 
-
         ## draws gradient map
         if False:
             if self.pathFindingMap.gradient:
@@ -254,7 +253,7 @@ class GameView(arcade.View):
             border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
             arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
 
-        arcade.draw_text(f"Score: {int(self.score)}", SCREEN_WIDTH/2, SCREEN_HEIGHT-25, color=arcade.color.SAE, font_name=FONT, font_size=16)
+        arcade.draw_text(f"Score: {int(self.score)}", SCREEN_WIDTH/2, SCREEN_HEIGHT-20, color=arcade.color.SAE, anchor_x='center', anchor_y='center', font_name=FONT, font_size=16)
 
     def alloc_sound(self):
         if self.sound_limit > 1:
