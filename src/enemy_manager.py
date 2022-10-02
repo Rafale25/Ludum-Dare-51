@@ -68,6 +68,7 @@ class EnemyManager:
     def on_collision(self, enemy, player):
         if self.rage_mode:
             enemy.dead = True
+            ctx.game.score += SCORE_KILL
         else:
             ctx.game.end_game()
 
@@ -109,7 +110,6 @@ class EnemyManager:
                     if 0.0 < l < PLAYER_SIZE:
                         me.vel -= d.normalized() * (1.0/ (l*10.0) ) ## i tried something, not too bad
 
-
     def update_movement(self, dt):
         player = ctx.game.player
         for enemy in self.enemies:
@@ -137,14 +137,6 @@ class EnemyManager:
 
 
             self.compute_self_collision(enemy)
-            # ## enemy self collision
-            # for other in self.enemies:
-            #     if enemy is other: continue
-
-            #     d = other.pos - enemy.pos
-            #     l = d.len()
-            #     if l < PLAYER_SIZE:
-            #         enemy.vel -= d.normalized() * (1.0/ (l*10.0) ) ## i tried something, not too bad
 
             enemy.move_and_collide((enemy.vel) * ENEMY_SPEED * dt)
 

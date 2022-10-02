@@ -13,3 +13,8 @@ COLOR_DARK = (0, 0, 0)
 COLOR_BRIGHT = (200, 200, 200)
 
 RAGE_DELAY = 10
+
+SCORE_KILL = 10
+SCORE_PER_SECOND = 100
+
+FONT = "assets/BebasNeue-Regular.ttf"

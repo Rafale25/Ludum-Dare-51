@@ -2,6 +2,7 @@ from math import dist, sin, pi
 import random
 import time
 from collections import defaultdict
+from tkinter import font
 
 import arcade
 
@@ -18,6 +19,10 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Ludum Dare 51"
 
+RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
+VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO
+VIEWPORT_HEIGHT = 8*GRID_SCALE
+
 class StartView(arcade.View):
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -27,14 +32,15 @@ class StartView(arcade.View):
         self.clear()
 
         arcade.draw_text(
-        text="Press SPACE to start !!",
-        bold=True,
-        font_size=42,
-        start_x=SCREEN_WIDTH/2,
-        start_y=SCREEN_HEIGHT/2,
-        anchor_x="center",
-        anchor_y="center",
-        rotation=sin(time.time() * 3) * 10)
+            text="Press SPACE to start !!",
+            bold=True,
+            font_size=42,
+            font_name="Bebas Neue",
+            start_x=SCREEN_WIDTH/2,
+            start_y=SCREEN_HEIGHT/2,
+            anchor_x="center",
+            anchor_y="center",
+            rotation=sin(time.time() * 3) * 10)
 
     def on_update(self, dt):
         pass
@@ -45,6 +51,10 @@ class StartView(arcade.View):
             self.window.show_view(ctx.game)
 
 class GameOverView(arcade.View):
+    def __init__(self, score):
+        super().__init__()
+        self.score = score
+
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
         arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
@@ -53,9 +63,10 @@ class GameOverView(arcade.View):
         self.clear()
 
         arcade.draw_text(
-            text="Bruh",
+            text=f"Bruh, your score is {int(self.score)}",
             bold=True,
             font_size=42,
+            font_name="Bebas Neue",
             start_x=SCREEN_WIDTH/2,
             start_y=SCREEN_HEIGHT/2 + 50,
             anchor_x="center",
@@ -66,6 +77,7 @@ class GameOverView(arcade.View):
             text="Press Space to restart",
             bold=True,
             font_size=42,
+            font_name="Bebas Neue",
             start_x=SCREEN_WIDTH/2,
             start_y=SCREEN_HEIGHT/2 - 50,
             anchor_x="center",
@@ -85,6 +97,8 @@ class GameView(arcade.View):
         arcade.set_background_color(arcade.color.AMAZON)
 
         random.seed(69) # Haha funny
+
+        self.camera_center = Vec2(0, 0)
 
         # Get X and Y from index and width
         # y = i // GRID_WIDTH
@@ -123,9 +137,10 @@ class GameView(arcade.View):
         self.enemy_manager = EnemyManager()
 
         self.partial_dt = 0
+        self.score = 0
 
     def end_game(self):
-        self.window.show_view(GameOverView())
+        self.window.show_view(GameOverView(self.score))
 
     def tile_quantize(self, x, y):
         return Vec2(int(x / GRID_SCALE) * GRID_SCALE, int(y / GRID_SCALE) * GRID_SCALE)
@@ -155,15 +170,13 @@ class GameView(arcade.View):
             self.clear(COLOR_BRIGHT)
         else:
             self.clear(COLOR_DARK)
-        # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
 
-        VIEWPORT_WIDTH = SCREEN_WIDTH / 20
-        VIEWPORT_HEIGHT = SCREEN_HEIGHT / 20
+        # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
         arcade.set_viewport(
-            left=self.player.pos.x - VIEWPORT_WIDTH/2,
-            right=self.player.pos.x + VIEWPORT_WIDTH/2,
-            bottom=self.player.pos.y - VIEWPORT_HEIGHT/2,
-            top=self.player.pos.y + VIEWPORT_HEIGHT/2
+            left=self.camera_center.x - VIEWPORT_WIDTH/2,
+            right=self.camera_center.x + VIEWPORT_WIDTH/2,
+            bottom=self.camera_center.y - VIEWPORT_HEIGHT/2,
+            top=self.camera_center.y + VIEWPORT_HEIGHT/2
         )
 
         if self.enemy_manager.rage_mode:
@@ -205,13 +218,16 @@ class GameView(arcade.View):
 
         time_factor = 1
         tm = (self.enemy_manager.until_rage + time_factor/2) % RAGE_DELAY
+
+        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
         if tm < time_factor:
-            arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
             color = COLOR_BRIGHT if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
             border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
             arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
+        arcade.draw_text(f"Score: {int(self.score)}", 10, 10, color=arcade.color.SAE, font_name=FONT)
 
     def on_update(self, dt):
+        self.score += SCORE_PER_SECOND * dt
         self.partial_dt += dt
         DT = 1/60
         if self.partial_dt > 1:
@@ -220,12 +236,13 @@ class GameView(arcade.View):
             self.partial_dt -= DT
             self.player.update(DT)
 
-            # t1 = perf_counter()
             self.enemy_manager.update(DT)
+            # t1 = perf_counter()
             # t2 = perf_counter()
             # print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
 
-    # https://api.arcade.academy/en/latest/arcade.key.html
+            self.camera_center = self.camera_center + (self.player.pos - self.camera_center) * 0.3
+
     def on_key_press(self, key, key_modifiers):
         self.pressed[key] = True
 
@@ -244,6 +261,8 @@ class GameView(arcade.View):
 
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+
+    arcade.load_font("assets/BebasNeue-Regular.ttf")
 
     startView = StartView()
     window.show_view(startView)
