@@ -17,15 +17,15 @@ from src.maze import Maze
 
 from time import perf_counter
 
-
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Ludum Dare 51"
 
 RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
 
-VIEWPORT_WIDTH = 8*1*GRID_SCALE * RATIO
-VIEWPORT_HEIGHT = 8*1*GRID_SCALE
+VIEWPORT_SCALE = 1
+VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO * VIEWPORT_SCALE
+VIEWPORT_HEIGHT = 8*GRID_SCALE * VIEWPORT_SCALE
 
 class StartView(arcade.View):
     def on_show_view(self):
@@ -119,8 +119,8 @@ class GameView(arcade.View):
                 i = self.toI(GRID_WIDTH//2 + x, GRID_HEIGHT//2 + y)
                 self.grid[i] = TILE_EMPTY
 
-        opensimplex.seed(1234)
-        random.seed(69) # Haha funny
+        opensimplex.seed(int(time.time()))
+        random.seed(int(time.time())) # Haha funny
         for i in range(GRID_HEIGHT * GRID_WIDTH):
             y = i // GRID_WIDTH
             x = i % GRID_WIDTH
@@ -227,7 +227,6 @@ class GameView(arcade.View):
         # t2 = perf_counter()
         # print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
 
-
         ## draws gradient map
         if False:
             if self.pathFindingMap.gradient:
@@ -245,14 +244,15 @@ class GameView(arcade.View):
                         arcade.color.RED, line_width=0.2)
 
         ## draws dijsktra map
-        # arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
-        # for i in range(GRID_HEIGHT * GRID_WIDTH):
-        #     y = i // GRID_WIDTH
-        #     x = i % GRID_WIDTH
-        #     arcade.draw_text(str(self.pathFindingMap.dijkstra[i]),
-        #         start_x=x* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
-        #         start_y=y* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
-        #         color=arcade.color.RED)
+        if False:
+            arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+            for i in range(GRID_HEIGHT * GRID_WIDTH):
+                y = i // GRID_WIDTH
+                x = i % GRID_WIDTH
+                arcade.draw_text(str(self.pathFindingMap.dijkstra[i]),
+                    start_x=x* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
+                    start_y=y* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
+                    color=arcade.color.RED)
 
         time_factor = 1
         tm = (self.enemy_manager.until_rage + time_factor/2) % RAGE_DELAY
