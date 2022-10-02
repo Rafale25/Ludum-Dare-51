@@ -206,10 +206,10 @@ class GameView(arcade.View):
 
         self.player.draw()
 
-        t1 = perf_counter()
         self.enemy_manager.draw()
-        t2 = perf_counter()
-        print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
+        # t1 = perf_counter()
+        # t2 = perf_counter()
+        # print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
 
 
 

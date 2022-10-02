@@ -123,25 +123,23 @@ class PathFindingMap:
         while len(indices) > 0:
             distance, index = heappop(indices)
 
-            for index in indices:
+            if not self.game.isIndexInGrid(index): continue
+            if dijkstra_map[index] != -2: continue
 
-                if not self.game.isIndexInGrid(index): continue
-                if dijkstra_map[index] != -2: continue
+            if self.game.grid[index] == TILE_EMPTY:
+                dijkstra_map[index] = distance
 
-                if self.game.grid[index] == TILE_EMPTY:
-                    dijkstra_map[index] = distance
+                x, y = self.game.toXY(index)
+                for nx, ny in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+                    if not self.game.isXYInGrid(x+nx, y+ny): continue
 
-                    x, y = self.game.toXY(index)
-                    for nx, ny in ((1, 0), (0, 1), (-1, 0), (0, -1)):
-                        if not self.game.isXYInGrid(x+nx, y+ny): continue
+                    neighbour_index = self.game.toI(x + nx, y + ny)
+                    heappush(indices, (distance+1+costs[index], neighbour_index))
 
-                        neighbour_index = self.game.toI(x + nx, y + ny)
-                        heappush(indices, (distance+1+costs[index], neighbour_index))
+            elif self.game.grid[index] == TILE_WALL:
+                dijkstra_map[index] = -1
 
-                elif self.game.grid[index] == TILE_WALL:
-                    dijkstra_map[index] = -1
-
-                else:
-                    pass
+            else:
+                pass
 
         self.dijkstra = dijkstra_map
