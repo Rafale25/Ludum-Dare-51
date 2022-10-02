@@ -13,8 +13,10 @@ from src.enemy_manager import EnemyManager
 from src.dijsktra import PathFindingMap
 from src.vec import Vec2
 from src import ctx
+from src.maze import Maze
 
 from time import perf_counter
+
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -22,8 +24,8 @@ SCREEN_TITLE = "Ludum Dare 51"
 
 RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
 
-VIEWPORT_WIDTH = 8*2*GRID_SCALE * RATIO
-VIEWPORT_HEIGHT = 8*2*GRID_SCALE
+VIEWPORT_WIDTH = 8*1*GRID_SCALE * RATIO
+VIEWPORT_HEIGHT = 8*1*GRID_SCALE
 
 class StartView(arcade.View):
     def on_show_view(self):
@@ -103,23 +105,33 @@ class GameView(arcade.View):
         self.pressed = defaultdict(bool)
         arcade.set_background_color(arcade.color.AMAZON)
 
-        random.seed(69) # Haha funny
-
         self.camera_center = Vec2(0, 0)
 
         # Get X and Y from index and width
         # y = i // GRID_WIDTH
         # x = i % GRID_WIDTH
-        self.grid = [0] * GRID_WIDTH * GRID_HEIGHT
 
-        # opensimplex.seed(int(time.time()))
+        self.grid = Maze.generate(GRID_WIDTH//2 + 1, GRID_HEIGHT//2 + 1).to_grid()
+
+        CENTER_HOLE_RADIUS = 1
+        for y in range(-CENTER_HOLE_RADIUS, CENTER_HOLE_RADIUS+1):
+            for x in range(-CENTER_HOLE_RADIUS, CENTER_HOLE_RADIUS+1):
+                i = self.toI(GRID_WIDTH//2 + x, GRID_HEIGHT//2 + y)
+                self.grid[i] = TILE_EMPTY
+
         opensimplex.seed(1234)
+        random.seed(69) # Haha funny
         for i in range(GRID_HEIGHT * GRID_WIDTH):
             y = i // GRID_WIDTH
             x = i % GRID_WIDTH
 
-            self.grid[i] = TILE_WALL if opensimplex.noise2(x*0.7, y*0.7) > 0.3 else TILE_EMPTY
-            # self.grid[i] = TILE_WALL if random.random() > 0.8 else TILE_EMPTY
+            # remove wall at random
+            if random.random() > 0.9:
+                self.grid[i] = TILE_EMPTY
+
+            # remove wall based on simple noise
+            if opensimplex.noise2(x*0.4, y*0.4) > 0.2:
+                self.grid[i] = TILE_EMPTY
 
         self.shape_list_map_1 = arcade.ShapeElementList()
         self.shape_list_map_2 = arcade.ShapeElementList()
