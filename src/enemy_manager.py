@@ -85,7 +85,8 @@ class EnemyManager:
             self.until_spawn -= dt
         if self.until_spawn < 0:
             self.until_spawn += SPAWN_DELAY
-            self.enemies.append(Enemy(Vec2(2, 2))) # TODO select a better location
+            pos = random.choice([Vec2(x, y) for x in (2, (GRID_WIDTH-0.5) * GRID_SCALE) for y in (2, (GRID_HEIGHT-0.5) * GRID_SCALE)])
+            self.enemies.append(Enemy(pos)) # TODO select a better location
         self.until_rage -= dt
         if self.until_rage < 0:
             self.until_rage += RAGE_DELAY
