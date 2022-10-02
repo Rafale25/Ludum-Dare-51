@@ -11,8 +11,8 @@ class PathFindingMap:
         self.dijkstra = None
         self.gradient = None
 
-    def compute(self, x, y):
-        self.compute_dijsktra2(x, y)
+    def compute(self, positions):
+        self.compute_dijsktra2(positions)
         self.computeGradient()
 
     def computeGradient(self):
@@ -106,7 +106,7 @@ class PathFindingMap:
                 costs[ind] += 1
         return costs
 
-    def compute_dijsktra2(self, px, py):
+    def compute_dijsktra2(self, positions):
         #TODO: add error check
 
         # -1 : Wall
@@ -115,8 +115,7 @@ class PathFindingMap:
 
         dijkstra_map = [-2] * GRID_WIDTH * GRID_HEIGHT
         costs = self.calc_costs()
-
-        indices = [(0, (int(py) * GRID_WIDTH + int(px)))]
+        indices = [(0, (int(py) * GRID_WIDTH + int(px))) for (px, py) in positions]
 
         distance = 0
 

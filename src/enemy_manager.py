@@ -2,6 +2,7 @@ import math
 from dataclasses import dataclass
 import random
 
+import pyglet
 import arcade
 
 from src import ctx
@@ -20,12 +21,16 @@ TURNING_WEIGHT = 0.03
 ## acceleration structure
 CELL_SIZE = PLAYER_SIZE
 
-@dataclass
-class Enemy(Entity): #, arcade.Shape
-    pos: Vec2
-    vel: Vec2
-    dead: bool = False
-    hash: int = 0
+# @dataclass
+class Enemy(Entity):
+    def __init__(self, pos):
+        super().__init__()
+
+        self.pos: Vec2 = pos
+        self.vel: Vec2 = Vec2(0, 0)
+        self.dead: bool = False
+        self.hash: int = 0
+        # self.shape = pyglet.shapes.Rectangle(2, 2, PLAYER_SIZE, PLAYER_SIZE, color=(255,255,255,255), batch=batch)
 
 class EnemyManager:
     def __init__(self):
@@ -34,7 +39,7 @@ class EnemyManager:
         self.until_rage = RAGE_DELAY
         self.rage_mode = False
 
-        self.shape_list = arcade.ShapeElementList()
+        # self.batch = pyglet.graphics.Batch()
 
         ## acceleration structure
         self.bucket = []
@@ -81,11 +86,12 @@ class EnemyManager:
             self.until_spawn -= dt
         if self.until_spawn < 0:
             self.until_spawn += SPAWN_DELAY
-            self.enemies.append(Enemy(Vec2(2, 2), Vec2(0, 0))) # TODO select a better location
+            self.enemies.append(Enemy(Vec2(2, 2))) # TODO select a better location
         self.until_rage -= dt
         if self.until_rage < 0:
             self.until_rage += RAGE_DELAY
             self.rage_mode = not self.rage_mode
+            ctx.game.player.recompute_paths()
 
         self.computeAccelerationStructure()
 
@@ -148,5 +154,6 @@ class EnemyManager:
                 self.on_collision(enemy, player)
 
     def draw(self):
+        # self.batch.draw()
         for enemy in self.enemies:
             arcade.draw_rectangle_filled(*enemy.pos, PLAYER_SIZE, PLAYER_SIZE, color=arcade.color.CRIMSON)

@@ -3,6 +3,7 @@ import random
 import time
 from collections import defaultdict
 
+import pyglet
 import arcade
 import opensimplex
 
@@ -42,6 +43,9 @@ class StartView(arcade.View):
             anchor_x="center",
             anchor_y="center",
             rotation=sin(time.time() * 3) * 10)
+
+        # shape = pyglet.shapes.Rectangle(100, 0, 100, 100)
+        # shape.draw()
 
     def on_update(self, dt):
         pass

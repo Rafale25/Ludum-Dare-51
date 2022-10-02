@@ -31,14 +31,19 @@ class Player(Entity):
         self.pos = Vec2(x, y)
         self.last_tile = (-1, -1)
 
-    def on_tile_changed(self):
-        ctx.game.pathFindingMap.compute(self.last_tile.x // GRID_SCALE, self.last_tile.y // GRID_SCALE)
+    def recompute_paths(self):
+        if ctx.game.enemy_manager.rage_mode:
+            mx, my = self.last_tile.x // GRID_SCALE, self.last_tile.y // GRID_SCALE
+            positions = [(0, 0), (GRID_WIDTH-1, 0), (0, GRID_HEIGHT-1), (GRID_WIDTH-1, GRID_HEIGHT-1)]
+            positions.remove(min(positions, key=lambda pos: (pos[0]-mx) ** 2 + (pos[1]-my) ** 2))
+        else:
+            ctx.game.pathFindingMap.compute([(self.last_tile.x // GRID_SCALE, self.last_tile.y // GRID_SCALE)])
 
     def update(self, dt):
         current_tile = ctx.game.tile_quantize(*self.pos)
         if current_tile != self.last_tile:
             self.last_tile = current_tile
-            self.on_tile_changed()
+            self.recompute_paths()
 
         dx = ctx.game.pressed[arcade.key.D] - ctx.game.pressed[arcade.key.A]
         dy = ctx.game.pressed[arcade.key.W] - ctx.game.pressed[arcade.key.S]
