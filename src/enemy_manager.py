@@ -10,11 +10,10 @@ from src.player import Entity
 from src.utils import clamp
 
 SPAWN_DELAY = 0.5
-RAGE_DELAY = 10
-ENEMY_SPEED = 10
+ENEMY_SPEED = 14
 
 MAX_VEL = 0.8
-TURNING_WEIGHT = 0.04
+TURNING_WEIGHT = 0.03
 
 
 ## acceleration structure
@@ -73,7 +72,8 @@ class EnemyManager:
             ctx.game.end_game()
 
     def update(self, dt):
-        self.until_spawn -= dt
+        if not self.rage_mode:
+            self.until_spawn -= dt
         if self.until_spawn < 0:
             self.until_spawn += SPAWN_DELAY
             self.enemies.append(Enemy(Vec2(2, 2), Vec2(0, 0))) # TODO select a better location
@@ -127,7 +127,10 @@ class EnemyManager:
             direction = (delta*0.25 + pathFindDir).normalized()
 
             if self.rage_mode:
-                direction *= -1
+                if ln < GRID_SCALE * 6:
+                    direction *= -1
+                else:
+                    direction *= -0.2
 
             enemy.vel += direction * TURNING_WEIGHT
             enemy.vel = enemy.vel.clamped(MAX_VEL)

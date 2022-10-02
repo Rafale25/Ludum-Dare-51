@@ -1,5 +1,6 @@
 from src.consts import *
 from src.vec import Vec2
+from src import ctx
 
 class PathFindingMap:
     def __init__(self, game):
@@ -33,10 +34,14 @@ class PathFindingMap:
 
                 try:
                     index = self.game.toI(x+gx, y+gy)
-                    if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
-                        # v += Vec2(gx, gy)
-                        v.x += gx
-                        v.y += gy
+                    if ctx.game.enemy_manager.rage_mode:
+                        if self.dijkstra[index] >= 0 and self.dijkstra[index] > self.dijkstra[i]:
+                            v.x -= gx
+                            v.y -= gy
+                    else:
+                        if self.dijkstra[index] >= 0 and self.dijkstra[index] < self.dijkstra[i]:
+                            v.x += gx
+                            v.y += gy
                 except IndexError:
                     pass
 

@@ -1,4 +1,4 @@
-from math import dist, sin
+from math import dist, sin, pi
 import random
 import time
 from collections import defaultdict
@@ -105,14 +105,14 @@ class GameView(arcade.View):
                 center_y=y*GRID_SCALE + GRID_SCALE/2,
                 width=GRID_SCALE,
                 height=GRID_SCALE,
-                color=(0,0,0) if (self.grid[i] == TILE_WALL) else (150,150,150))
+                color=COLOR_DARK if (self.grid[i] == TILE_WALL) else COLOR_BRIGHT)
 
             shape_2 = arcade.create_rectangle_filled(
                 center_x=x*GRID_SCALE + GRID_SCALE/2,
                 center_y=y*GRID_SCALE + GRID_SCALE/2,
                 width=GRID_SCALE,
                 height=GRID_SCALE,
-                color=(0,0,0) if (self.grid[i] == TILE_EMPTY) else (150,150,150))
+                color=COLOR_DARK if (self.grid[i] == TILE_EMPTY) else COLOR_BRIGHT)
 
             self.shape_list_map_1.append(shape_1)
             self.shape_list_map_2.append(shape_2)
@@ -151,7 +151,10 @@ class GameView(arcade.View):
         return (i % GRID_WIDTH, i // GRID_WIDTH)
 
     def on_draw(self):
-        self.clear()
+        if self.enemy_manager.rage_mode:
+            self.clear(COLOR_BRIGHT)
+        else:
+            self.clear(COLOR_DARK)
         # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
 
         VIEWPORT_WIDTH = SCREEN_WIDTH / 20
@@ -172,21 +175,24 @@ class GameView(arcade.View):
         self.player.draw()
         self.enemy_manager.draw()
 
+        
+
         ## draws gradient map
-        if self.pathFindingMap.gradient:
-            for i in range(GRID_HEIGHT * GRID_WIDTH):
-                y = i // GRID_WIDTH
-                x = i % GRID_WIDTH
+        if False:
+            if self.pathFindingMap.gradient:
+                for i in range(GRID_HEIGHT * GRID_WIDTH):
+                    y = i // GRID_WIDTH
+                    x = i % GRID_WIDTH
 
-                startx = x*GRID_SCALE + GRID_SCALE/2
-                starty = y*GRID_SCALE + GRID_SCALE/2
-                arcade.draw_line(
-                    startx,
-                    starty,
-                    startx + self.pathFindingMap.gradient[i].x,
-                    starty + self.pathFindingMap.gradient[i].y,
-                    arcade.color.RED, line_width=0.2)
-
+                    startx = x*GRID_SCALE + GRID_SCALE/2
+                    starty = y*GRID_SCALE + GRID_SCALE/2
+                    arcade.draw_line(
+                        startx,
+                        starty,
+                        startx + self.pathFindingMap.gradient[i].x,
+                        starty + self.pathFindingMap.gradient[i].y,
+                        arcade.color.RED, line_width=0.2)
+            
         ## draws dijsktra map
         # arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
         # for i in range(GRID_HEIGHT * GRID_WIDTH):
@@ -196,6 +202,14 @@ class GameView(arcade.View):
         #         start_x=x* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
         #         start_y=y* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
         #         color=arcade.color.RED)
+
+        time_factor = 1
+        tm = (self.enemy_manager.until_rage + time_factor/2) % RAGE_DELAY
+        if tm < time_factor:
+            arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+            color = COLOR_BRIGHT if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK            
+            border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
+            arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
 
     def on_update(self, dt):
         self.partial_dt += dt
