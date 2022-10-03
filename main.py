@@ -26,7 +26,7 @@ SCREEN_TITLE = "Ludum Dare 51"
 
 RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
 
-VIEWPORT_SCALE = 3
+VIEWPORT_SCALE = 1
 VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO * VIEWPORT_SCALE
 VIEWPORT_HEIGHT = 8*GRID_SCALE * VIEWPORT_SCALE
 
@@ -168,22 +168,23 @@ class GameView(arcade.View):
             y = i // GRID_WIDTH
             x = i % GRID_WIDTH
 
-            shape_1 = arcade.create_rectangle_filled(
-                center_x=x*GRID_SCALE + GRID_SCALE/2,
-                center_y=y*GRID_SCALE + GRID_SCALE/2,
-                width=GRID_SCALE,
-                height=GRID_SCALE,
-                color=COLOR_DARK if (self.grid[i] == TILE_WALL) else COLOR_BRIGHT_2)
+            if self.grid[i] == TILE_EMPTY:
+                shape_1 = arcade.create_rectangle_filled(
+                    center_x=x*GRID_SCALE + GRID_SCALE/2,
+                    center_y=y*GRID_SCALE + GRID_SCALE/2,
+                    width=GRID_SCALE,
+                    height=GRID_SCALE,
+                    color=COLOR_BRIGHT_2)
 
-            shape_2 = arcade.create_rectangle_filled(
-                center_x=x*GRID_SCALE + GRID_SCALE/2,
-                center_y=y*GRID_SCALE + GRID_SCALE/2,
-                width=GRID_SCALE,
-                height=GRID_SCALE,
-                color=COLOR_DARK if (self.grid[i] == TILE_EMPTY) else COLOR_BRIGHT)
+                shape_2 = arcade.create_rectangle_filled(
+                    center_x=x*GRID_SCALE + GRID_SCALE/2,
+                    center_y=y*GRID_SCALE + GRID_SCALE/2,
+                    width=GRID_SCALE,
+                    height=GRID_SCALE,
+                    color=COLOR_DARK)
 
-            self.shape_list_map_1.append(shape_1)
-            self.shape_list_map_2.append(shape_2)
+                self.shape_list_map_1.append(shape_1)
+                self.shape_list_map_2.append(shape_2)
 
         self.pathFindingMap = PathFindingMap(self)
 
@@ -192,22 +193,8 @@ class GameView(arcade.View):
 
         ## blood
         self.blood_splashes: List[Vec2] = []
-        RESOLUTION_PER_TILE = 64
-        self.texture_blood = self.window.ctx.texture(size=(GRID_WIDTH*RESOLUTION_PER_TILE, GRID_HEIGHT*RESOLUTION_PER_TILE), components=4)
-        self.fbo_blood = self.window.ctx.framebuffer(
-            color_attachments=self.texture_blood
-        )
-        self.fbo_blood.clear((0, 100, 0, 255))
-        self.quad_blood_splash = arcade.gl.geometry.quad_2d(size=(1, 1), pos=(0, 0))
-        self.quad_blood = arcade.gl.geometry.quad_2d(size=(GRID_WIDTH*GRID_SCALE, GRID_HEIGHT*GRID_SCALE), pos=(0, 0))
-        self.program_blood_splash = self.window.ctx.program(
-            vertex_shader=Path('assets/shaders/blood_splash.vs').read_text(),
-            fragment_shader=Path('assets/shaders/blood_splash.fs').read_text()
-        )
-        self.program_blood = self.window.ctx.program(
-            vertex_shader=Path('assets/shaders/blood.vs').read_text(),
-            fragment_shader=Path('assets/shaders/blood.fs').read_text()
-        )
+        self.sprite_list_blood = arcade.SpriteList()
+        arcade.Sprite("assets/blood.png", scale=0.002) # preload this sprite
 
         self.partial_dt = 0
         self.score = 0
@@ -259,23 +246,11 @@ class GameView(arcade.View):
         if glow_enabled:
             self.glow.fb.clear(bg_color)
 
-        #self.window.ctx.screen.use()
-
         if self.enemy_manager.rage_mode:
             self.clear(COLOR_BRIGHT)
         else:
             self.clear(bg_color)
 
-
-        # self.fbo_blood.use()
-        # self.quad_blood_splash.render(program=self.program_blood_splash)
-
-        # self.texture_blood.use(unit=0)
-        # self.quad_blood
-
-        # arcade.set_viewport(0, GRID_WIDTH*64 * 100, 0, GRID_HEIGHT*64 * 100)
-
-        # self.window.ctx.screen.use()
 
         # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
         ratio = self.window.aspect_ratio
@@ -292,8 +267,12 @@ class GameView(arcade.View):
         else:
             self.shape_list_map_1.draw()
 
+        self.sprite_list_blood.draw()
+
         self.player.draw()
         self.enemy_manager.draw()
+
+
         # t1 = perf_counter()
         # t2 = perf_counter()
         # print(f"Elapsed time: {(t2 - t1)*1000:.2f}ms {len(self.enemy_manager.enemies)}")
@@ -360,6 +339,11 @@ class GameView(arcade.View):
             self.player.update(DT)
 
             self.enemy_manager.update(DT)
+
+            for x, y in self.blood_splashes:
+                blood_sprite = arcade.Sprite("assets/blood.png", scale=0.002, center_x=x, center_y=y)
+                self.sprite_list_blood.append(blood_sprite)
+            self.blood_splashes = []
 
             self.camera_center = self.camera_center + (self.player.pos - self.camera_center) * 0.3
 

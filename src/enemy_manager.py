@@ -79,6 +79,7 @@ class EnemyManager:
             ctx.game.score += SCORE_KILL
             if ctx.game.alloc_sound():
                 arcade.play_sound(random.choice(SOUNDS_KILL), volume=VOLUME)
+            ctx.game.blood_splashes.append(enemy.pos)
         else:
             ctx.game.end_game()
 

@@ -5,7 +5,9 @@
 
 in vec2 in_vert;
 
+uniform vec2 u_position;
+
 void main() {
     // gl_Position = u_projectionMatrix * u_modelMatrix * vec4(in_vert, 0.0, 1.0);
-    gl_Position = vec4(in_vert, 0.0, 1.0);
+    gl_Position = vec4(in_vert + u_position, 0.0, 1.0);
 }
