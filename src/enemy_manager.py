@@ -9,7 +9,6 @@ from src import ctx
 from src.consts import *
 from src.vec import Vec2
 from src.player import Entity
-from src.utils import clamp
 
 SPAWN_DELAY = 0.5
 ENEMY_SPEED = 14
@@ -22,14 +21,14 @@ CELL_SIZE = PLAYER_SIZE
 
 # @dataclass
 class Enemy(Entity):
-    def __init__(self, pos):
+    def __init__(self, pos, batch):
         super().__init__()
 
         self.pos: Vec2 = pos
         self.vel: Vec2 = Vec2(0, 0)
         self.dead: bool = False
         self.hash: int = 0
-        # self.shape = pyglet.shapes.Rectangle(2, 2, PLAYER_SIZE, PLAYER_SIZE, color=(255,255,255,255), batch=batch)
+        self.shape = pyglet.shapes.Rectangle(self.pos.x, self.pos.y, PLAYER_SIZE, PLAYER_SIZE, color=arcade.color.CRIMSON, batch=batch)
 
 class EnemyManager:
     def __init__(self):
@@ -38,7 +37,7 @@ class EnemyManager:
         self.until_rage = RAGE_DELAY
         self.rage_mode = False
 
-        # self.batch = pyglet.graphics.Batch()
+        self.batch = pyglet.graphics.Batch()
 
         ## acceleration structure
         self.bucket = []
@@ -86,7 +85,7 @@ class EnemyManager:
         if self.until_spawn < 0:
             self.until_spawn += SPAWN_DELAY
             pos = random.choice([Vec2(x, y) for x in (2, (GRID_WIDTH-0.5) * GRID_SCALE) for y in (2, (GRID_HEIGHT-0.5) * GRID_SCALE)])
-            self.enemies.append(Enemy(pos)) # TODO select a better location
+            self.enemies.append(Enemy(pos, self.batch)) # TODO select a better location
         self.until_rage -= dt
         if self.until_rage < 0:
             self.until_rage += RAGE_DELAY
@@ -158,6 +157,9 @@ class EnemyManager:
                 self.on_collision(enemy, player)
 
     def draw(self):
-        # self.batch.draw()
         for enemy in self.enemies:
-            arcade.draw_rectangle_filled(*enemy.pos, PLAYER_SIZE, PLAYER_SIZE, color=arcade.color.CRIMSON)
+            enemy.shape.x = enemy.pos.x - PLAYER_SIZE/2
+            enemy.shape.y = enemy.pos.y - PLAYER_SIZE/2
+
+        with arcade.get_window().ctx.pyglet_rendering():
+            self.batch.draw()

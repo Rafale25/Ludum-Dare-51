@@ -23,7 +23,7 @@ SCREEN_TITLE = "Ludum Dare 51"
 
 RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
 
-VIEWPORT_SCALE = 1
+VIEWPORT_SCALE = 3
 VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO * VIEWPORT_SCALE
 VIEWPORT_HEIGHT = 8*GRID_SCALE * VIEWPORT_SCALE
 
@@ -45,11 +45,6 @@ class StartView(arcade.View):
             anchor_x="center",
             anchor_y="center",
             rotation=sin(time.time() * 3) * 10)
-
-        # shape = pyglet.shapes.Rectangle(100, 0, 100, 100)
-        # self.ctx.pyglet_rendering()
-        # shape.draw()
-
 
     def on_update(self, dt):
         pass
@@ -219,9 +214,7 @@ class GameView(arcade.View):
         else:
             self.shape_list_map_1.draw()
 
-
         self.player.draw()
-
         self.enemy_manager.draw()
         # t1 = perf_counter()
         # t2 = perf_counter()
@@ -293,9 +286,21 @@ class GameView(arcade.View):
     def on_key_release(self, key, key_modifiers):
         self.pressed[key] = False
 
+    def on_resize(self, width: int, height: int):
+        # global SCREEN_WIDTH, SCREEN_HEIGHT, RATIO, VIEWPORT_SCALE, VIEWPORT_WIDTH, VIEWPORT_HEIGHT
+        # SCREEN_WIDTH = self.window.width
+        # SCREEN_HEIGHT = self.window.height
+        # RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
+        # VIEWPORT_SCALE = 1
+        # VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO * VIEWPORT_SCALE
+        # VIEWPORT_HEIGHT = 8*GRID_SCALE * VIEWPORT_SCALE
+        print(self.window.size, self.window.aspect_ratio)
+
 
 def main():
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
+
+    # window.set_fullscreen(True)
 
     arcade.load_font("assets/BebasNeue-Regular.ttf")
     arcade.play_sound(SOUND_GAME_OVER, volume=0) # Let arcade initialize sound so it doesn't freeze later
