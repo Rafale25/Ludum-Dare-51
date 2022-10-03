@@ -261,12 +261,13 @@ class GameView(arcade.View):
             top=self.camera_center.y + VIEWPORT_WIDTH/ratio/2
         )
 
-        self.sprite_list_blood.draw()
 
         if self.enemy_manager.rage_mode:
             self.shape_list_map_2.draw()
         else:
             self.shape_list_map_1.draw()
+
+        self.sprite_list_blood.draw()
 
         self.player.draw()
         self.enemy_manager.draw()
