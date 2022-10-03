@@ -22,7 +22,7 @@ from pathlib import Path
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-SCREEN_TITLE = "Ludum Dare 51"
+SCREEN_TITLE = "Run Hunt Repeat"
 
 RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
 
@@ -115,12 +115,12 @@ class GameOverView(arcade.View):
         recalc_viewport(self.window)
 
         arcade.draw_text(
-            text=f"Bruh, your score is {int(self.score)}",
+            text=f"Your score is {int(self.score)}",
             bold=True,
             font_size=42,
             font_name="Bebas Neue",
             start_x=SCREEN_WIDTH/2,
-            start_y=SCREEN_HEIGHT/2 + 50,
+            start_y=SCREEN_HEIGHT/2 + 75,
             anchor_x="center",
             anchor_y="center",
             rotation=sin(time.time() * 3) * 10)
@@ -131,7 +131,7 @@ class GameOverView(arcade.View):
             font_size=42,
             font_name="Bebas Neue",
             start_x=SCREEN_WIDTH/2,
-            start_y=SCREEN_HEIGHT/2 - 50,
+            start_y=SCREEN_HEIGHT/2 - 75,
             anchor_x="center",
             anchor_y="center",
             rotation=sin((time.time()+4.789) * 3) * 10)
