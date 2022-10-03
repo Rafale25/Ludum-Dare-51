@@ -261,13 +261,12 @@ class GameView(arcade.View):
             top=self.camera_center.y + VIEWPORT_WIDTH/ratio/2
         )
 
+        self.sprite_list_blood.draw()
 
         if self.enemy_manager.rage_mode:
             self.shape_list_map_2.draw()
         else:
             self.shape_list_map_1.draw()
-
-        self.sprite_list_blood.draw()
 
         self.player.draw()
         self.enemy_manager.draw()
@@ -341,7 +340,7 @@ class GameView(arcade.View):
             self.enemy_manager.update(DT)
 
             for x, y in self.blood_splashes:
-                blood_sprite = arcade.Sprite("assets/blood.png", scale=0.002, center_x=x, center_y=y)
+                blood_sprite = arcade.Sprite("assets/blood.png", scale=0.002, center_x=x, center_y=y, angle=random.randrange(0, 360))
                 self.sprite_list_blood.append(blood_sprite)
             self.blood_splashes = []
 
