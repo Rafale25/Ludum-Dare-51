@@ -1,7 +1,6 @@
 # Run hunt repeat
 
-Made for the Ludum Dare 51
-
+Made for the Ludum Dare 51 with the help of @IntQuant
 
 https://rafale25.itch.io/run-hunt-repeat
 
