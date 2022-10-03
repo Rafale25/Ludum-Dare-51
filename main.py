@@ -42,7 +42,7 @@ class StartView(arcade.View):
         self.time_start = time.time()
         self.program = self.window.ctx.program(
             vertex_shader=Path('assets/shaders/background.vs').read_text(),
-            fragment_shader=Path('assets/shaders/background.fs').read_text()
+            fragment_shader=Path('assets/shaders/background_blue.fs').read_text()
         )
 
         self.setup()
@@ -56,8 +56,8 @@ class StartView(arcade.View):
 
     def on_draw(self):
         self.clear()
-        self.program['time'] = time.time() - self.time_start
 
+        self.program['time'] = time.time() - self.time_start
         self.screen_quad.render(program=self.program)
 
         recalc_viewport(self.window)
@@ -90,11 +90,26 @@ class GameOverView(arcade.View):
         super().__init__()
         self.score = score
 
+        self.time_start = time.time()
+        self.program = self.window.ctx.program(
+            vertex_shader=Path('assets/shaders/background.vs').read_text(),
+            fragment_shader=Path('assets/shaders/background_red.fs').read_text()
+        )
+
+        self.setup()
+
+    def setup(self):
+        self.screen_quad = arcade.gl.geometry.quad_2d_fs()
+        self.program['resolution'] = self.window.size
+
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
         self.clear()
+
+        self.program['time'] = time.time() - self.time_start
+        self.screen_quad.render(program=self.program)
 
         recalc_viewport(self.window)
 
