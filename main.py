@@ -1,9 +1,9 @@
-from math import dist, sin, pi
+from math import sin, pi
 import random
 import time
 from collections import defaultdict
+from typing import List
 
-import pyglet
 import arcade
 import opensimplex
 
@@ -15,7 +15,9 @@ from src.vec import Vec2
 from src import ctx
 from src.maze import Maze
 
-from time import perf_counter
+from pathlib import Path
+
+# from time import perf_counter
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -33,11 +35,29 @@ def recalc_viewport(window):
     arcade.set_viewport(0, SCREEN_WIDTH, -height_fix, SCREEN_HEIGHT+height_fix)
 
 class StartView(arcade.View):
+    def __init__(self):
+        super().__init__()
+
+        self.time_start = time.time()
+        self.program = self.window.ctx.program(
+            vertex_shader=Path('assets/shaders/background.vs').read_text(),
+            fragment_shader=Path('assets/shaders/background.fs').read_text()
+        )
+
+        self.setup()
+
+    def setup(self):
+        self.screen_quad = arcade.gl.geometry.quad_2d_fs()
+        self.program['resolution'] = self.window.size
+
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
         self.clear()
+        self.program['time'] = time.time() - self.time_start
+
+        self.screen_quad.render(program=self.program)
 
         recalc_viewport(self.window)
 
@@ -62,6 +82,7 @@ class StartView(arcade.View):
 
     def on_resize(self, width: int, height: int):
         super().on_resize(width, height)
+        self.setup()
 
 class GameOverView(arcade.View):
     def __init__(self, score):
@@ -115,10 +136,6 @@ class GameView(arcade.View):
 
         self.camera_center = Vec2(0, 0)
 
-        # Get X and Y from index and width
-        # y = i // GRID_WIDTH
-        # x = i % GRID_WIDTH
-
         self.grid = Maze.generate(GRID_WIDTH//2 + 1, GRID_HEIGHT//2 + 1).to_grid()
 
         CENTER_HOLE_RADIUS = 1
@@ -127,8 +144,9 @@ class GameView(arcade.View):
                 i = self.toI(GRID_WIDTH//2 + x, GRID_HEIGHT//2 + y)
                 self.grid[i] = TILE_EMPTY
 
-        opensimplex.seed(int(time.time()))
-        random.seed(int(time.time())) # Haha funny
+        t = int(time.time())
+        opensimplex.seed(t)
+        random.seed(t)
         for i in range(GRID_HEIGHT * GRID_WIDTH):
             y = i // GRID_WIDTH
             x = i % GRID_WIDTH
@@ -168,6 +186,21 @@ class GameView(arcade.View):
 
         self.player = Player(x=(GRID_WIDTH*GRID_SCALE)/2, y=(GRID_HEIGHT*GRID_SCALE)/2)
         self.enemy_manager = EnemyManager()
+
+        ## blood
+        RESOLUTION_PER_TILE = 64
+        self.texture_blood = self.window.ctx.texture(size=(GRID_WIDTH*RESOLUTION_PER_TILE, GRID_HEIGHT*RESOLUTION_PER_TILE), components=4)
+        self.fbo_blood = self.window.ctx.framebuffer(
+            color_attachments=self.texture_blood
+        )
+        self.fbo_blood.clear((0, 0, 0, 0))
+        self.quad_blood = arcade.gl.geometry.quad_2d(size=(1, 1), pos=(0, 0))
+        self.program_blood = self.window.ctx.program(
+            vertex_shader=Path('assets/shaders/blood_splash.vs').read_text(),
+            fragment_shader=Path('assets/shaders/blood_splash.fs').read_text()
+        )
+
+        self.blood_splashes: List[Vec2] = []
 
         self.partial_dt = 0
         self.score = 0
@@ -209,10 +242,21 @@ class GameView(arcade.View):
         return (i % GRID_WIDTH, i // GRID_WIDTH)
 
     def on_draw(self):
+
+        self.window.ctx.screen.use()
+
         if self.enemy_manager.rage_mode:
             self.clear(COLOR_BRIGHT)
         else:
             self.clear(COLOR_DARK)
+
+
+        # self.fbo_blood.use()
+        # self.quad_blood.render(program=self.program_blood)
+        # # self.texture_blood.use(unit=0)
+        # self.window.ctx.copy_framebuffer(src=self.fbo_blood, dst=self.window.ctx.screen)
+
+        self.window.ctx.screen.use()
 
         # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
         ratio = self.window.aspect_ratio
