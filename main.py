@@ -23,14 +23,14 @@ SCREEN_TITLE = "Ludum Dare 51"
 
 RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
 
-VIEWPORT_SCALE = 3
+VIEWPORT_SCALE = 1
 VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO * VIEWPORT_SCALE
 VIEWPORT_HEIGHT = 8*GRID_SCALE * VIEWPORT_SCALE
 
 class StartView(arcade.View):
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
-        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_WIDTH/self.window.aspect_ratio)
 
     def on_draw(self):
         self.clear()
@@ -54,6 +54,9 @@ class StartView(arcade.View):
             ctx.game = GameView()
             self.window.show_view(ctx.game)
 
+    def on_resize(self, width: int, height: int):
+        super().on_resize(width, height)
+
 class GameOverView(arcade.View):
     def __init__(self, score):
         super().__init__()
@@ -61,7 +64,7 @@ class GameOverView(arcade.View):
 
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
-        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_WIDTH/self.window.aspect_ratio)
 
     def on_draw(self):
         self.clear()
@@ -202,11 +205,12 @@ class GameView(arcade.View):
             self.clear(COLOR_DARK)
 
         # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
+        ratio = self.window.aspect_ratio
         arcade.set_viewport(
             left=self.camera_center.x - VIEWPORT_WIDTH/2,
             right=self.camera_center.x + VIEWPORT_WIDTH/2,
-            bottom=self.camera_center.y - VIEWPORT_HEIGHT/2,
-            top=self.camera_center.y + VIEWPORT_HEIGHT/2
+            bottom=self.camera_center.y - VIEWPORT_WIDTH/ratio/2,
+            top=self.camera_center.y + VIEWPORT_WIDTH/ratio/2
         )
 
         if self.enemy_manager.rage_mode:
@@ -238,7 +242,7 @@ class GameView(arcade.View):
 
         ## draws dijsktra map
         if False:
-            arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+            arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_WIDTH/self.window.aspect_ratio)
             for i in range(GRID_HEIGHT * GRID_WIDTH):
                 y = i // GRID_WIDTH
                 x = i % GRID_WIDTH
@@ -250,7 +254,7 @@ class GameView(arcade.View):
         time_factor = 1
         tm = (self.enemy_manager.until_rage + time_factor/2) % RAGE_DELAY
 
-        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_WIDTH/self.window.aspect_ratio)
         if tm < time_factor:
             color = COLOR_BRIGHT if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
             border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
@@ -283,19 +287,17 @@ class GameView(arcade.View):
     def on_key_press(self, key, key_modifiers):
         self.pressed[key] = True
 
+        if key == arcade.key.F11:
+            self.window.set_fullscreen(
+                True - self.window.fullscreen
+            )
+
     def on_key_release(self, key, key_modifiers):
         self.pressed[key] = False
 
     def on_resize(self, width: int, height: int):
         super().on_resize(width, height)
 
-        global SCREEN_WIDTH, SCREEN_HEIGHT, RATIO, VIEWPORT_SCALE, VIEWPORT_WIDTH, VIEWPORT_HEIGHT
-        # SCREEN_WIDTH = self.window.width
-        # SCREEN_HEIGHT = self.window.height
-        # RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
-        # VIEWPORT_SCALE = 1
-        # VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO * VIEWPORT_SCALE
-        # VIEWPORT_HEIGHT = 8*GRID_SCALE * VIEWPORT_SCALE
         print(self.window.size, self.window.aspect_ratio)
 
 
