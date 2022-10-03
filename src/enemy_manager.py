@@ -161,7 +161,7 @@ class EnemyManager:
         for enemy in self.enemies:
             enemy.shape.x = enemy.pos.x - PLAYER_SIZE/2
             enemy.shape.y = enemy.pos.y - PLAYER_SIZE/2
-            mod = PLAYER_SIZE / 2
+            mod = PLAYER_SIZE * 0.1
             enemy.shape.width = PLAYER_SIZE + (abs(enemy.vel.x) - abs(enemy.vel.y)) * mod
             enemy.shape.height = PLAYER_SIZE - (abs(enemy.vel.x) + abs(enemy.vel.y)) * mod
 

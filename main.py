@@ -312,6 +312,7 @@ class GameView(arcade.View):
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
     window.set_minimum_size(720, 480)
+    window.set_vsync(True)
     window.set_mouse_visible(False)
 
     arcade.load_font("assets/BebasNeue-Regular.ttf")
