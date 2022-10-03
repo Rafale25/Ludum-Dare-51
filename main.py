@@ -27,13 +27,19 @@ VIEWPORT_SCALE = 1
 VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO * VIEWPORT_SCALE
 VIEWPORT_HEIGHT = 8*GRID_SCALE * VIEWPORT_SCALE
 
+def recalc_viewport(window):
+    new_height = SCREEN_WIDTH/window.aspect_ratio
+    height_fix = (new_height - SCREEN_HEIGHT) / 2
+    arcade.set_viewport(0, SCREEN_WIDTH, -height_fix, SCREEN_HEIGHT+height_fix)
+
 class StartView(arcade.View):
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
-        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_WIDTH/self.window.aspect_ratio)
 
     def on_draw(self):
         self.clear()
+
+        recalc_viewport(self.window)
 
         arcade.draw_text(
             text="Press SPACE to start !!",
@@ -64,10 +70,11 @@ class GameOverView(arcade.View):
 
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
-        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_WIDTH/self.window.aspect_ratio)
 
     def on_draw(self):
         self.clear()
+
+        recalc_viewport(self.window)
 
         arcade.draw_text(
             text=f"Bruh, your score is {int(self.score)}",
@@ -95,6 +102,9 @@ class GameOverView(arcade.View):
         if key == arcade.key.SPACE:
             ctx.game = GameView()
             self.window.show_view(ctx.game)
+
+    def on_resize(self, width: int, height: int):
+        super().on_resize(width, height)
 
 class GameView(arcade.View):
     def __init__(self):
@@ -242,7 +252,7 @@ class GameView(arcade.View):
 
         ## draws dijsktra map
         if False:
-            arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_WIDTH/self.window.aspect_ratio)
+            recalc_viewport(self.window)
             for i in range(GRID_HEIGHT * GRID_WIDTH):
                 y = i // GRID_WIDTH
                 x = i % GRID_WIDTH
@@ -254,7 +264,7 @@ class GameView(arcade.View):
         time_factor = 1
         tm = (self.enemy_manager.until_rage + time_factor/2) % RAGE_DELAY
 
-        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_WIDTH/self.window.aspect_ratio)
+        recalc_viewport(self.window)
         if tm < time_factor:
             color = COLOR_BRIGHT if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
             border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
@@ -298,13 +308,11 @@ class GameView(arcade.View):
     def on_resize(self, width: int, height: int):
         super().on_resize(width, height)
 
-        print(self.window.size, self.window.aspect_ratio)
-
 
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
-
-    # window.set_fullscreen(True)
+    window.set_minimum_size(720, 480)
+    window.set_mouse_visible(False)
 
     arcade.load_font("assets/BebasNeue-Regular.ttf")
     arcade.play_sound(SOUND_GAME_OVER, volume=0) # Let arcade initialize sound so it doesn't freeze later

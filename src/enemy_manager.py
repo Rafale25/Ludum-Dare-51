@@ -1,6 +1,7 @@
 import math
 from dataclasses import dataclass
 import random
+from numpy import mat
 
 import pyglet
 import arcade
@@ -160,6 +161,9 @@ class EnemyManager:
         for enemy in self.enemies:
             enemy.shape.x = enemy.pos.x - PLAYER_SIZE/2
             enemy.shape.y = enemy.pos.y - PLAYER_SIZE/2
+            mod = PLAYER_SIZE / 2
+            enemy.shape.width = PLAYER_SIZE + (abs(enemy.vel.x) - abs(enemy.vel.y)) * mod
+            enemy.shape.height = PLAYER_SIZE - (abs(enemy.vel.x) + abs(enemy.vel.y)) * mod
 
         with arcade.get_window().ctx.pyglet_rendering():
             self.batch.draw()
