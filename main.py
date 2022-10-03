@@ -14,6 +14,7 @@ from src.dijsktra import PathFindingMap
 from src.vec import Vec2
 from src import ctx
 from src.maze import Maze
+from src.glow import Glow
 
 from time import perf_counter
 
@@ -110,6 +111,8 @@ class GameView(arcade.View):
     def __init__(self):
         super().__init__()
 
+        self.glow = Glow(self.window.ctx)
+
         self.pressed = defaultdict(bool)
         arcade.set_background_color(arcade.color.AMAZON)
 
@@ -152,7 +155,7 @@ class GameView(arcade.View):
                 center_y=y*GRID_SCALE + GRID_SCALE/2,
                 width=GRID_SCALE,
                 height=GRID_SCALE,
-                color=COLOR_DARK if (self.grid[i] == TILE_WALL) else COLOR_BRIGHT)
+                color=COLOR_DARK if (self.grid[i] == TILE_WALL) else COLOR_BRIGHT_2)
 
             shape_2 = arcade.create_rectangle_filled(
                 center_x=x*GRID_SCALE + GRID_SCALE/2,
@@ -209,10 +212,17 @@ class GameView(arcade.View):
         return (i % GRID_WIDTH, i // GRID_WIDTH)
 
     def on_draw(self):
-        if self.enemy_manager.rage_mode:
-            self.clear(COLOR_BRIGHT)
+        glow_enabled = self.enemy_manager.rage_mode
+        
+        if glow_enabled:
+            self.glow.use()
+
+        bg_color = COLOR_BRIGHT if self.enemy_manager.rage_mode else COLOR_DARK
+
+        if glow_enabled:
+            self.glow.fb.clear(bg_color)
         else:
-            self.clear(COLOR_DARK)
+            self.clear(bg_color)
 
         # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
         ratio = self.window.aspect_ratio
@@ -222,6 +232,7 @@ class GameView(arcade.View):
             bottom=self.camera_center.y - VIEWPORT_WIDTH/ratio/2,
             top=self.camera_center.y + VIEWPORT_WIDTH/ratio/2
         )
+
 
         if self.enemy_manager.rage_mode:
             self.shape_list_map_2.draw()
@@ -264,11 +275,16 @@ class GameView(arcade.View):
         time_factor = 1
         tm = (self.enemy_manager.until_rage + time_factor/2) % RAGE_DELAY
 
+
         recalc_viewport(self.window)
         if tm < time_factor:
-            color = COLOR_BRIGHT if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
+            bright = COLOR_BRIGHT if glow_enabled else COLOR_BRIGHT_2
+            color = bright if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
             border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
             arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
+        
+        if glow_enabled:
+            self.glow.render(self.window.ctx.screen)
 
         arcade.draw_text(f"Score: {int(self.score)}", SCREEN_WIDTH/2, SCREEN_HEIGHT-20, color=arcade.color.SAE, anchor_x='center', anchor_y='center', font_name=FONT, font_size=16)
 
@@ -307,6 +323,7 @@ class GameView(arcade.View):
 
     def on_resize(self, width: int, height: int):
         super().on_resize(width, height)
+        self.glow.gen_fbs((width, height))
 
 
 def main():
