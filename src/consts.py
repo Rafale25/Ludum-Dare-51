@@ -19,6 +19,7 @@ RAGE_DELAY = 10
 SCORE_KILL = 10
 SCORE_PER_SECOND = 100
 
+VOLUME = 0.2
 FONT = "Bebas Neue"
 
 SOUND_GAME_OVER = arcade.load_sound(":resources:sounds/error4.wav")

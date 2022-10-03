@@ -161,7 +161,7 @@ class GameView(arcade.View):
         self.sound_limit = 0
 
     def end_game(self):
-        arcade.play_sound(SOUND_GAME_OVER)
+        arcade.play_sound(SOUND_GAME_OVER, volume=VOLUME)
         self.window.show_view(GameOverView(self.score))
 
     def tile_quantize(self, x, y):
@@ -287,7 +287,9 @@ class GameView(arcade.View):
         self.pressed[key] = False
 
     def on_resize(self, width: int, height: int):
-        # global SCREEN_WIDTH, SCREEN_HEIGHT, RATIO, VIEWPORT_SCALE, VIEWPORT_WIDTH, VIEWPORT_HEIGHT
+        super().on_resize(width, height)
+
+        global SCREEN_WIDTH, SCREEN_HEIGHT, RATIO, VIEWPORT_SCALE, VIEWPORT_WIDTH, VIEWPORT_HEIGHT
         # SCREEN_WIDTH = self.window.width
         # SCREEN_HEIGHT = self.window.height
         # RATIO = SCREEN_WIDTH / SCREEN_HEIGHT

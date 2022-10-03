@@ -75,7 +75,7 @@ class EnemyManager:
             enemy.dead = True
             ctx.game.score += SCORE_KILL
             if ctx.game.alloc_sound():
-                arcade.play_sound(random.choice(SOUNDS_KILL))
+                arcade.play_sound(random.choice(SOUNDS_KILL), volume=VOLUME)
         else:
             ctx.game.end_game()
 
