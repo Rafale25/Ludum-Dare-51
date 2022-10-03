@@ -250,7 +250,7 @@ class GameView(arcade.View):
 
     def on_draw(self):
         glow_enabled = self.enemy_manager.rage_mode
-        
+
         if glow_enabled:
             self.glow.use()
 
@@ -275,7 +275,7 @@ class GameView(arcade.View):
 
         # arcade.set_viewport(0, GRID_WIDTH*64 * 100, 0, GRID_HEIGHT*64 * 100)
 
-        self.window.ctx.screen.use()
+        # self.window.ctx.screen.use()
 
         # arcade.set_viewport(0, GRID_WIDTH*GRID_SCALE, 0, GRID_HEIGHT*GRID_SCALE)
         ratio = self.window.aspect_ratio
@@ -335,7 +335,7 @@ class GameView(arcade.View):
             color = bright if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
             border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
             arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
-        
+
         if glow_enabled:
             self.glow.render(self.window.ctx.screen)
 
