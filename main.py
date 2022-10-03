@@ -34,6 +34,7 @@ def recalc_viewport(window):
     new_height = SCREEN_WIDTH/window.aspect_ratio
     height_fix = (new_height - SCREEN_HEIGHT) / 2
     arcade.set_viewport(0, SCREEN_WIDTH, -height_fix, SCREEN_HEIGHT+height_fix)
+    window.true_height = SCREEN_HEIGHT+height_fix # I like python
 
 class StartView(arcade.View):
     def __init__(self):
@@ -177,11 +178,31 @@ class GameView(arcade.View):
             if opensimplex.noise2(x*0.4, y*0.4) > 0.2:
                 self.grid[i] = TILE_EMPTY
 
-        self.shape_list_map_1 = arcade.ShapeElementList()
-        self.shape_list_map_2 = arcade.ShapeElementList()
+        self.shape_list_map_1_wall = arcade.ShapeElementList()
+        self.shape_list_map_1_empty = arcade.ShapeElementList()
+        self.shape_list_map_2_wall = arcade.ShapeElementList()
+        self.shape_list_map_2_empty = arcade.ShapeElementList()
         for i in range(GRID_HEIGHT * GRID_WIDTH):
             y = i // GRID_WIDTH
             x = i % GRID_WIDTH
+
+            if self.grid[i] == TILE_WALL:
+                shape_1 = arcade.create_rectangle_filled(
+                    center_x=x*GRID_SCALE + GRID_SCALE/2,
+                    center_y=y*GRID_SCALE + GRID_SCALE/2,
+                    width=GRID_SCALE,
+                    height=GRID_SCALE,
+                    color=COLOR_DARK)
+
+                shape_2 = arcade.create_rectangle_filled(
+                    center_x=x*GRID_SCALE + GRID_SCALE/2,
+                    center_y=y*GRID_SCALE + GRID_SCALE/2,
+                    width=GRID_SCALE,
+                    height=GRID_SCALE,
+                    color=COLOR_BRIGHT_2)
+
+                self.shape_list_map_1_wall.append(shape_1)
+                self.shape_list_map_2_wall.append(shape_2)
 
             if self.grid[i] == TILE_EMPTY:
                 shape_1 = arcade.create_rectangle_filled(
@@ -198,8 +219,8 @@ class GameView(arcade.View):
                     height=GRID_SCALE,
                     color=COLOR_DARK)
 
-                self.shape_list_map_1.append(shape_1)
-                self.shape_list_map_2.append(shape_2)
+                self.shape_list_map_1_empty.append(shape_1)
+                self.shape_list_map_2_empty.append(shape_2)
 
         self.pathFindingMap = PathFindingMap(self)
 
@@ -278,11 +299,16 @@ class GameView(arcade.View):
 
 
         if self.enemy_manager.rage_mode:
-            self.shape_list_map_2.draw()
+            self.shape_list_map_2_empty.draw()
         else:
-            self.shape_list_map_1.draw()
+            self.shape_list_map_1_empty.draw()
 
         self.sprite_list_blood.draw()
+
+        if self.enemy_manager.rage_mode:
+            self.shape_list_map_2_wall.draw()
+        else:
+            self.shape_list_map_1_wall.draw()
 
         self.player.draw()
         self.enemy_manager.draw()
@@ -333,7 +359,7 @@ class GameView(arcade.View):
         if glow_enabled:
             self.glow.render(self.window.ctx.screen)
 
-        arcade.draw_text(f"Score: {int(self.score)}", SCREEN_WIDTH/2, SCREEN_HEIGHT-20, color=arcade.color.SAE, anchor_x='center', anchor_y='center', font_name=FONT, font_size=16)
+        arcade.draw_text(f"Score: {int(self.score)}", SCREEN_WIDTH/2, self.window.true_height-20, color=arcade.color.SAE, anchor_x='center', anchor_y='center', font_name=FONT, font_size=16)
 
     def alloc_sound(self):
         if self.sound_limit > 1:
