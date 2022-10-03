@@ -24,3 +24,5 @@ FONT = "Bebas Neue"
 
 SOUND_GAME_OVER = arcade.load_sound(":resources:sounds/error4.wav")
 SOUNDS_KILL = [arcade.load_sound(f":resources:sounds/hit{i}.wav") for i in (1, 3, 5)]
+
+ENABLE_STRETCH = False

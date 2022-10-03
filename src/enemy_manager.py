@@ -10,6 +10,7 @@ from src import ctx
 from src.consts import *
 from src.vec import Vec2
 from src.player import Entity
+from src.utils import clamp
 
 SPAWN_DELAY = 0.5
 ENEMY_SPEED = 14
@@ -27,6 +28,7 @@ class Enemy(Entity):
 
         self.pos: Vec2 = pos
         self.vel: Vec2 = Vec2(0, 0)
+        self.acc = Vec2(0, 0)
         self.dead: bool = False
         self.hash: int = 0
         self.shape = pyglet.shapes.Rectangle(self.pos.x, self.pos.y, PLAYER_SIZE, PLAYER_SIZE, color=arcade.color.CRIMSON, batch=batch)
@@ -147,8 +149,11 @@ class EnemyManager:
                 else:
                     direction *= -0.2
 
+            prev_vel = enemy.vel.copy()
             enemy.vel += direction * TURNING_WEIGHT
             enemy.vel = enemy.vel.clamped(MAX_VEL)
+            a = 0.9
+            enemy.acc = enemy.acc * a + (enemy.vel-prev_vel) / dt * (1-a)
 
             self.compute_self_collision(enemy)
 
@@ -161,9 +166,14 @@ class EnemyManager:
         for enemy in self.enemies:
             enemy.shape.x = enemy.pos.x - PLAYER_SIZE/2
             enemy.shape.y = enemy.pos.y - PLAYER_SIZE/2
-            mod = PLAYER_SIZE * 0.1
-            enemy.shape.width = PLAYER_SIZE + (abs(enemy.vel.x) - abs(enemy.vel.y)) * mod
-            enemy.shape.height = PLAYER_SIZE - (abs(enemy.vel.x) + abs(enemy.vel.y)) * mod
+
+            if ENABLE_STRETCH:
+                mod = 0.1
+                vec = enemy.acc
+                cl = 0.25
+                v = clamp(((abs(vec.x) - abs(vec.y)) * mod), -cl, cl)
+                enemy.shape.width = PLAYER_SIZE * (1 + v)
+                enemy.shape.height = PLAYER_SIZE * (1 - v)
 
         with arcade.get_window().ctx.pyglet_rendering():
             self.batch.draw()
