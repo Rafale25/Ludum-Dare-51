@@ -136,7 +136,7 @@ class EnemyManager:
 
             pathFindDir = Vec2(0.0, 0.0)
 
-            if ctx.game.isXYInGrid(enemy_grid_x, enemy_grid_y):
+            if ctx.game.grid.isXYInGrid(enemy_grid_x, enemy_grid_y):
                 pathFindDir = ctx.game.pathFindingMap.gradient[enemy_grid_y * GRID_WIDTH + enemy_grid_x]
 
             if self.rage_mode:

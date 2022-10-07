@@ -15,6 +15,7 @@ from src.vec import Vec2
 from src import ctx
 from src.maze import Maze
 from src.glow import Glow
+from src.grid import Grid
 
 from pathlib import Path
 
@@ -40,7 +41,6 @@ class MenuView(arcade.View):
     def __init__(self, parent_view):
         super().__init__()
         self.parent_view = parent_view
-
 
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -204,12 +204,16 @@ class GameView(arcade.View):
 
         self.camera_center = Vec2(0, 0)
 
-        self.grid = Maze.generate(GRID_WIDTH//2 + 1, GRID_HEIGHT//2 + 1).to_grid()
+        self.grid = Grid(
+            width=GRID_WIDTH,
+            height=GRID_HEIGHT,
+            data=Maze.generate(GRID_WIDTH//2 + 1, GRID_HEIGHT//2 + 1).to_grid()
+        )
 
         CENTER_HOLE_RADIUS = 1
         for y in range(-CENTER_HOLE_RADIUS, CENTER_HOLE_RADIUS+1):
             for x in range(-CENTER_HOLE_RADIUS, CENTER_HOLE_RADIUS+1):
-                i = self.toI(GRID_WIDTH//2 + x, GRID_HEIGHT//2 + y)
+                i = self.grid.toI(GRID_WIDTH//2 + x, GRID_HEIGHT//2 + y)
                 self.grid[i] = TILE_EMPTY
 
         t = int(time.time())
@@ -289,36 +293,6 @@ class GameView(arcade.View):
         arcade.play_sound(SOUND_GAME_OVER, volume=VOLUME)
         self.window.show_view(GameOverView(self.score))
 
-    def tile_quantize(self, x, y):
-        return Vec2(int(x / GRID_SCALE) * GRID_SCALE, int(y / GRID_SCALE) * GRID_SCALE)
-
-    def index_at(self, x, y):
-        x /= GRID_SCALE
-        y /= GRID_SCALE
-        if 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT:
-            return int(y) * GRID_WIDTH + int(x)
-        return None
-
-    def tile_at(self, x, y):
-        x /= GRID_SCALE
-        y /= GRID_SCALE
-        if 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT:
-            return self.grid[int(y) * GRID_WIDTH + int(x)]
-        else:
-            return TILE_WALL
-
-    def isIndexInGrid(self, i):
-        return 0 <= i < GRID_WIDTH * GRID_HEIGHT
-
-    def isXYInGrid(self, x, y):
-        return 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT
-
-    def toI(self, x, y):
-        return int(y) * GRID_WIDTH + int(x)
-
-    def toXY(self, i):
-        return (i % GRID_WIDTH, i // GRID_WIDTH)
-
     def on_draw(self):
         glow_enabled = self.enemy_manager.rage_mode
 
@@ -360,7 +334,6 @@ class GameView(arcade.View):
 
         self.player.draw()
         self.enemy_manager.draw()
-
 
         # t1 = perf_counter()
         # t2 = perf_counter()

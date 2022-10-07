@@ -7,7 +7,7 @@ from src.utils import clamp
 
 class Entity:
     def move_and_collide(self, delta: Vec2):
-        current_tile = ctx.game.tile_quantize(*self.pos)
+        current_tile = Vec2(*ctx.game.grid.tile_quantize(*self.pos))
         new = self.pos.copy()
         half_size = PLAYER_SIZE / 2
 
@@ -16,7 +16,7 @@ class Entity:
             any_fix = False
             for sx in (-half_size, half_size):
                 for sy in (-half_size, half_size):
-                    if ctx.game.tile_at(new.x + sx, new.y + sy) != TILE_EMPTY:
+                    if ctx.game.grid.tile_at(new.x + sx, new.y + sy) != TILE_EMPTY:
                         any_fix = True
             if any_fix:
                 eps = 0.001
@@ -35,7 +35,7 @@ class Player(Entity):
         ctx.game.pathFindingMap.compute([(self.last_tile.x // GRID_SCALE, self.last_tile.y // GRID_SCALE)])
 
     def update(self, dt):
-        current_tile = ctx.game.tile_quantize(*self.pos)
+        current_tile = Vec2(*ctx.game.grid.tile_quantize(*self.pos))
         if current_tile != self.last_tile:
             self.last_tile = current_tile
             self.recompute_paths()
