@@ -4,8 +4,8 @@ import time
 from collections import defaultdict
 from typing import List
 
-import arcade
 import opensimplex
+import arcade
 
 from src.consts import *
 from src.player import Player
@@ -35,6 +35,39 @@ def recalc_viewport(window):
     height_fix = (new_height - SCREEN_HEIGHT) / 2
     arcade.set_viewport(0, SCREEN_WIDTH, -height_fix, SCREEN_HEIGHT+height_fix)
     window.true_height = SCREEN_HEIGHT+height_fix # I like python
+
+class MenuView(arcade.View):
+    def __init__(self, parent_view):
+        super().__init__()
+        self.parent_view = parent_view
+
+
+    def on_show_view(self):
+        arcade.set_background_color(arcade.color.BLACK)
+
+    def setup(self):
+        pass
+
+    def on_draw(self):
+        self.clear()
+
+        recalc_viewport(self.window)
+
+    def on_update(self, dt):
+        pass
+
+    def on_key_press(self, key, key_modifiers):
+        if key == arcade.key.ESCAPE:
+            self.window.show_view(self.parent_view)
+
+        if key == arcade.key.F11:
+            self.window.set_fullscreen(
+                True - self.window.fullscreen
+            )
+
+    def on_resize(self, width: int, height: int):
+        super().on_resize(width, height)
+        self.setup()
 
 class StartView(arcade.View):
     def __init__(self):
@@ -81,6 +114,14 @@ class StartView(arcade.View):
         if key == arcade.key.SPACE:
             ctx.game = GameView()
             self.window.show_view(ctx.game)
+
+        if key == arcade.key.F11:
+            self.window.set_fullscreen(
+                True - self.window.fullscreen
+            )
+
+        if key == arcade.key.ESCAPE:
+            self.window.show_view( MenuView(self) )
 
     def on_resize(self, width: int, height: int):
         super().on_resize(width, height)
@@ -140,6 +181,14 @@ class GameOverView(arcade.View):
         if key == arcade.key.SPACE:
             ctx.game = GameView()
             self.window.show_view(ctx.game)
+
+        if key == arcade.key.F11:
+            self.window.set_fullscreen(
+                True - self.window.fullscreen
+            )
+
+        # if key == arcade.key.ESCAPE:
+        #     self.window.show_view( MenuView(self) )
 
     def on_resize(self, width: int, height: int):
         super().on_resize(width, height)
@@ -248,8 +297,7 @@ class GameView(arcade.View):
         y /= GRID_SCALE
         if 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT:
             return int(y) * GRID_WIDTH + int(x)
-        else:
-            return None
+        return None
 
     def tile_at(self, x, y):
         x /= GRID_SCALE
@@ -395,6 +443,9 @@ class GameView(arcade.View):
             self.window.set_fullscreen(
                 True - self.window.fullscreen
             )
+
+        # if key == arcade.key.ESCAPE:
+        #     self.window.show_view( MenuView(self) )
 
     def on_key_release(self, key, key_modifiers):
         self.pressed[key] = False
