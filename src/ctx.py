@@ -1,1 +1,6 @@
 game = None
+
+## shaders
+programs = {
+    ''
+}

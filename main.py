@@ -21,21 +21,14 @@ from pathlib import Path
 
 # from time import perf_counter
 
+SCREEN_TITLE = "Run Hunt Repeat"
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-SCREEN_TITLE = "Run Hunt Repeat"
 
 RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
-
 VIEWPORT_SCALE = 1
-VIEWPORT_WIDTH = 8*GRID_SCALE * RATIO * VIEWPORT_SCALE
-VIEWPORT_HEIGHT = 8*GRID_SCALE * VIEWPORT_SCALE
-
-def recalc_viewport(window):
-    new_height = SCREEN_WIDTH/window.aspect_ratio
-    height_fix = (new_height - SCREEN_HEIGHT) / 2
-    arcade.set_viewport(0, SCREEN_WIDTH, -height_fix, SCREEN_HEIGHT+height_fix)
-    window.true_height = SCREEN_HEIGHT+height_fix # I like python
+VIEWPORT_WIDTH = 32 * RATIO * VIEWPORT_SCALE
+VIEWPORT_HEIGHT = 32 * VIEWPORT_SCALE
 
 class MenuView(arcade.View):
     def __init__(self, parent_view):
@@ -51,7 +44,7 @@ class MenuView(arcade.View):
     def on_draw(self):
         self.clear()
 
-        recalc_viewport(self.window)
+        arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
     def on_update(self, dt):
         pass
@@ -94,15 +87,15 @@ class StartView(arcade.View):
         self.program['time'] = time.time() - self.time_start
         self.screen_quad.render(program=self.program)
 
-        recalc_viewport(self.window)
+        arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
         arcade.draw_text(
             text="Press SPACE to start !!",
             bold=True,
             font_size=42,
             font_name="Bebas Neue",
-            start_x=SCREEN_WIDTH/2,
-            start_y=SCREEN_HEIGHT/2,
+            start_x=self.window.width/2,
+            start_y=self.window.height/2,
             anchor_x="center",
             anchor_y="center",
             rotation=sin(time.time() * 3) * 10)
@@ -153,15 +146,15 @@ class GameOverView(arcade.View):
         self.program['time'] = time.time() - self.time_start
         self.screen_quad.render(program=self.program)
 
-        recalc_viewport(self.window)
+        arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
         arcade.draw_text(
             text=f"Your score is {int(self.score)}",
             bold=True,
             font_size=42,
             font_name="Bebas Neue",
-            start_x=SCREEN_WIDTH/2,
-            start_y=SCREEN_HEIGHT/2 + 75,
+            start_x=self.window.width/2,
+            start_y=self.window.height/2 + 75,
             anchor_x="center",
             anchor_y="center",
             rotation=sin(time.time() * 3) * 10)
@@ -171,8 +164,8 @@ class GameOverView(arcade.View):
             bold=True,
             font_size=42,
             font_name="Bebas Neue",
-            start_x=SCREEN_WIDTH/2,
-            start_y=SCREEN_HEIGHT/2 - 75,
+            start_x=self.window.width/2,
+            start_y=self.window.height/2 - 75,
             anchor_x="center",
             anchor_y="center",
             rotation=sin((time.time()+4.789) * 3) * 10)
@@ -210,12 +203,14 @@ class GameView(arcade.View):
             data=Maze.generate(GRID_WIDTH//2 + 1, GRID_HEIGHT//2 + 1).to_grid()
         )
 
+        ## remove walls inside radius at center
         CENTER_HOLE_RADIUS = 1
         for y in range(-CENTER_HOLE_RADIUS, CENTER_HOLE_RADIUS+1):
             for x in range(-CENTER_HOLE_RADIUS, CENTER_HOLE_RADIUS+1):
                 i = self.grid.toI(GRID_WIDTH//2 + x, GRID_HEIGHT//2 + y)
                 self.grid[i] = TILE_EMPTY
 
+        ## remove walls at and random and with simplex noise
         t = int(time.time())
         opensimplex.seed(t)
         random.seed(t)
@@ -231,6 +226,7 @@ class GameView(arcade.View):
             if opensimplex.noise2(x*0.4, y*0.4) > 0.2:
                 self.grid[i] = TILE_EMPTY
 
+        ## walls and floor
         self.shape_list_map_1_wall = arcade.ShapeElementList()
         self.shape_list_map_1_empty = arcade.ShapeElementList()
         self.shape_list_map_2_wall = arcade.ShapeElementList()
@@ -291,7 +287,7 @@ class GameView(arcade.View):
 
     def end_game(self):
         arcade.play_sound(SOUND_GAME_OVER, volume=VOLUME)
-        self.window.show_view(GameOverView(self.score))
+        self.window.show_view( GameOverView(self.score) )
 
     def on_draw(self):
         glow_enabled = self.enemy_manager.rage_mode
@@ -355,32 +351,31 @@ class GameView(arcade.View):
                         starty + self.pathFindingMap.gradient[i].y,
                         arcade.color.RED, line_width=0.2)
 
+        arcade.set_viewport(0, self.window.width, 0, self.window.height)
+
         ## draws dijsktra map
         if False:
-            recalc_viewport(self.window)
-            for i in range(GRID_HEIGHT * GRID_WIDTH):
+            for i in range(GRID_HEIGHT * GRID_WIDTH - 100):
                 y = i // GRID_WIDTH
                 x = i % GRID_WIDTH
                 arcade.draw_text(str(self.pathFindingMap.dijkstra[i]),
-                    start_x=x* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
-                    start_y=y* (SCREEN_WIDTH/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
+                    start_x=x * (self.window.width/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
+                    start_y=y * (self.window.width/(GRID_WIDTH*GRID_SCALE)) * GRID_SCALE + GRID_SCALE/2,
                     color=arcade.color.RED)
 
         time_factor = 1
         tm = (self.enemy_manager.until_rage + time_factor/2) % RAGE_DELAY
 
-
-        recalc_viewport(self.window)
         if tm < time_factor:
             bright = COLOR_BRIGHT if glow_enabled else COLOR_BRIGHT_2
             color = bright if self.enemy_manager.rage_mode == (tm > time_factor/2) else COLOR_DARK
-            border_width = sin((tm) / time_factor * pi) * min(SCREEN_HEIGHT, SCREEN_WIDTH)
-            arcade.draw_rectangle_outline(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, color, border_width)
+            border_width = sin((tm) / time_factor * pi) * min(self.window.height, self.window.width)
+            arcade.draw_rectangle_outline(self.window.width / 2, self.window.height / 2, self.window.width, self.window.height, color, border_width)
 
         if glow_enabled:
             self.glow.render(self.window.ctx.screen)
 
-        arcade.draw_text(f"Score: {int(self.score)}", SCREEN_WIDTH/2, self.window.true_height-20, color=arcade.color.SAE, anchor_x='center', anchor_y='center', font_name=FONT, font_size=16)
+        arcade.draw_text(f"Score: {int(self.score)}", self.window.width/2, self.window.height-20, color=arcade.color.SAE, anchor_x='center', anchor_y='center', font_name=FONT, font_size=16)
 
     def alloc_sound(self):
         if self.sound_limit > 1:
