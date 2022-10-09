@@ -16,6 +16,7 @@ from src import ctx
 from src.maze import Maze
 from src.glow import Glow
 from src.grid import Grid
+from src.slider import Slider
 
 from pathlib import Path
 
@@ -35,22 +36,44 @@ class MenuView(arcade.View):
         super().__init__()
         self.parent_view = parent_view
 
+        self.volume_slider = Slider(
+            percent_x=0.5,
+            percent_y=0.5,
+            percent_width=0.2,
+            value=ctx.volume,
+            low=0,
+            high=1
+        )
+
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
-
-    def setup(self):
-        pass
+        self.window.set_mouse_visible(True)
 
     def on_draw(self):
         self.clear()
 
         arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
+        arcade.draw_text(
+            text="Volume",
+            bold=False,
+            font_size=24,
+            font_name="Bebas Neue",
+            start_x=self.window.width * 0.5 - 200,
+            start_y=self.window.height * 0.5,
+            anchor_x="center",
+            anchor_y="center"
+        )
+
+        self.volume_slider.draw()
+
     def on_update(self, dt):
-        pass
+        self.volume_slider.update(self.window)
+        ctx.volume = self.volume_slider.get_value()
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.ESCAPE:
+            self.window.set_mouse_visible(False)
             self.window.show_view(self.parent_view)
 
         if key == arcade.key.F11:
@@ -58,9 +81,17 @@ class MenuView(arcade.View):
                 True - self.window.fullscreen
             )
 
+    def on_mouse_press(self, x, y, button, modifiers):
+        self.volume_slider.on_mouse_press(x, y)
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        self.volume_slider.on_mouse_release(x, y)
+
+    def on_mouse_drag(self, x, y, dx, dy, _buttons, _modifiers):
+        self.volume_slider.on_mouse_drag(x, y, dx, dy)
+
     def on_resize(self, width: int, height: int):
         super().on_resize(width, height)
-        self.setup()
 
 class StartView(arcade.View):
     def __init__(self):
@@ -71,6 +102,7 @@ class StartView(arcade.View):
             vertex_shader=Path('assets/shaders/background.vs').read_text(),
             fragment_shader=Path('assets/shaders/background_blue.fs').read_text()
         )
+
 
         self.setup()
 
@@ -180,8 +212,8 @@ class GameOverView(arcade.View):
                 True - self.window.fullscreen
             )
 
-        # if key == arcade.key.ESCAPE:
-        #     self.window.show_view( MenuView(self) )
+        if key == arcade.key.ESCAPE:
+            self.window.show_view( MenuView(self) )
 
     def on_resize(self, width: int, height: int):
         super().on_resize(width, height)
@@ -286,7 +318,7 @@ class GameView(arcade.View):
         self.sound_limit = 0
 
     def end_game(self):
-        arcade.play_sound(SOUND_GAME_OVER, volume=VOLUME)
+        arcade.play_sound(SOUND_GAME_OVER, volume=ctx.volume)
         self.window.show_view( GameOverView(self.score) )
 
     def on_draw(self):
