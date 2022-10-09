@@ -2,10 +2,11 @@ import arcade
 import math
 
 class Slider:
-    def __init__(self, percent_x, percent_y, percent_width=0.2, value=0, low=0, high=1):
+    def __init__(self, percent_x, percent_y, percent_width=0.2, value=0, low=0, high=1, radius=10):
         self.percent_x = percent_x
         self.percent_y = percent_y
         self.percent_width = percent_width
+        self.radius = radius
 
         self.value = value
         self.low = low
@@ -34,7 +35,7 @@ class Slider:
         self.slider_x = self.start_x * (1 - self.value) + self.end_x * self.value
 
     def on_mouse_press(self, x, y):
-        if math.hypot(self.slider_x - x, self.center_y - y) < 10:
+        if math.hypot(self.slider_x - x, self.center_y - y) < self.radius:
             self.mouse_is_holding = True
 
     def on_mouse_release(self, x, y):
@@ -61,6 +62,6 @@ class Slider:
         arcade.draw_circle_filled(
             center_x=self.slider_x,
             center_y=self.center_y,
-            radius=10,
+            radius=self.radius,
             color=arcade.color.GRAY_BLUE
         )
