@@ -1,3 +1,4 @@
+import math
 import arcade
 
 from src import ctx
@@ -24,7 +25,6 @@ class Entity:
 
         self.pos = new
 
-
 class Player(Entity):
     SIZE = PLAYER_SIZE
     def __init__(self, x, y):
@@ -40,8 +40,19 @@ class Player(Entity):
             self.last_tile = current_tile
             self.recompute_paths()
 
-        dx = ctx.game.pressed[arcade.key.D] - ctx.game.pressed[arcade.key.A]
-        dy = ctx.game.pressed[arcade.key.W] - ctx.game.pressed[arcade.key.S]
+        dx = ctx.game.pressed[arcade.key.RIGHT] - ctx.game.pressed[arcade.key.LEFT]
+        dy = ctx.game.pressed[arcade.key.UP] - ctx.game.pressed[arcade.key.DOWN]
+
+        if ctx.keyboard == 'qwerty':
+            dx += ctx.game.pressed[arcade.key.D] - ctx.game.pressed[arcade.key.A]
+            dy += ctx.game.pressed[arcade.key.W] - ctx.game.pressed[arcade.key.S]
+        elif ctx.keyboard == 'azerty':
+            dx += ctx.game.pressed[arcade.key.D] - ctx.game.pressed[arcade.key.Q]
+            dy += ctx.game.pressed[arcade.key.Z] - ctx.game.pressed[arcade.key.S]
+
+        dx = clamp(dx, -1, 1)
+        dy = clamp(dy, -1, 1)
+
         delta = Vec2(dx, dy)
         delta.normalize()
         self.move_and_collide(delta * PLAYER_SPEED * dt)

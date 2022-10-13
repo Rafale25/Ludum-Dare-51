@@ -4,6 +4,8 @@ game = None
 
 volume = VOLUME
 
+keyboard = 'qwerty' ## qwerty, azerty
+
 ## shaders
 programs = {
     ''

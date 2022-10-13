@@ -17,6 +17,7 @@ from src.maze import Maze
 from src.glow import Glow
 from src.grid import Grid
 from src.slider import Slider
+from src.button import TextButton
 
 from pathlib import Path
 
@@ -38,12 +39,43 @@ class MenuView(arcade.View):
 
         self.volume_slider = Slider(
             percent_x=0.5,
-            percent_y=0.5,
+            percent_y=0.6,
             percent_width=0.2,
             value=ctx.volume,
             low=0,
             high=1
         )
+
+        self.btn_qwerty = TextButton(
+            text='qwerty',
+            font_size=48,
+            percentx=0.35,
+            percenty=0.3,
+            callback=self.btn_qwerty_callback
+        )
+
+        self.btn_azerty = TextButton(
+            text='azerty',
+            font_size=48,
+            percentx=0.65,
+            percenty=0.3,
+            callback=self.btn_azerty_callback
+        )
+
+        if ctx.keyboard == 'qwerty':
+            self.btn_azerty.text.color = arcade.color.GRAY
+        elif ctx.keyboard == 'azerty':
+            self.btn_qwerty.text.color = arcade.color.GRAY
+
+    def btn_qwerty_callback(self):
+        ctx.keyboard = 'qwerty'
+        self.btn_qwerty.text.color = arcade.color.WHITE
+        self.btn_azerty.text.color = arcade.color.GRAY
+
+    def btn_azerty_callback(self):
+        ctx.keyboard = 'azerty'
+        self.btn_qwerty.text.color = arcade.color.GRAY
+        self.btn_azerty.text.color = arcade.color.WHITE
 
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -59,13 +91,26 @@ class MenuView(arcade.View):
             bold=False,
             font_size=24,
             font_name="Bebas Neue",
-            start_x=self.window.width * 0.5 - 200,
-            start_y=self.window.height * 0.5,
+            start_x=self.window.width * (0.5 - 0.18),
+            start_y=self.window.height * 0.6,
+            anchor_x="center",
+            anchor_y="center"
+        )
+
+        arcade.draw_text(
+            text=f"{ctx.volume:.2f}",
+            bold=False,
+            font_size=24,
+            font_name="Bebas Neue",
+            start_x=self.window.width * (0.5 + 0.18),
+            start_y=self.window.height * 0.6,
             anchor_x="center",
             anchor_y="center"
         )
 
         self.volume_slider.draw()
+        self.btn_qwerty.draw(self.window)
+        self.btn_azerty.draw(self.window)
 
     def on_update(self, dt):
         self.volume_slider.update(self.window)
@@ -83,6 +128,8 @@ class MenuView(arcade.View):
 
     def on_mouse_press(self, x, y, button, modifiers):
         self.volume_slider.on_mouse_press(x, y)
+        self.btn_qwerty.on_mouse_press(x, y)
+        self.btn_azerty.on_mouse_press(x, y)
 
     def on_mouse_release(self, x, y, button, modifiers):
         self.volume_slider.on_mouse_release(x, y)
@@ -444,8 +491,8 @@ class GameView(arcade.View):
                 True - self.window.fullscreen
             )
 
-        # if key == arcade.key.ESCAPE:
-        #     self.window.show_view( MenuView(self) )
+        if key == arcade.key.ESCAPE:
+            self.window.show_view( MenuView(self) )
 
     def on_key_release(self, key, key_modifiers):
         self.pressed[key] = False
