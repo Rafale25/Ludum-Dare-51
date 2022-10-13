@@ -475,6 +475,7 @@ class GameView(arcade.View):
             self.player.update(DT)
 
             self.enemy_manager.update(DT)
+            self.pathFindingMap.update()
 
             for x, y in self.blood_splashes:
                 blood_sprite = arcade.Sprite("assets/blood.png", scale=0.002, center_x=x, center_y=y, angle=random.randrange(0, 360))

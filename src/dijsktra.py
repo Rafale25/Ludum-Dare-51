@@ -1,9 +1,14 @@
+import time
+
 from heapq import heappop, heappush
 from math import hypot
 
 from src.consts import *
 from src.vec import Vec2
 from src import ctx
+
+
+MAX_TIME = 100 #milliseconds
 
 class PathFindingMap:
     def __init__(self, game):
@@ -12,14 +17,58 @@ class PathFindingMap:
         self.dijkstra = None
         self.gradient = None
 
-    def compute(self, positions):
-        self.compute_dijsktra2(positions)
-        self.computeGradient()
 
-    def computeGradient(self):
+        self.dijkstra_func_time_start = 0
+        self.dijkstra_func = None
+
+        self.gradient_func_time_start = 0
+        self.gradient_func = None
+
+    """
+        Call this after compute to make it continue the computation
+    """
+    def update(self):
+        if self.dijkstra_func:
+            self.dijkstra_func_time_start = time.time()
+
+            try:
+                next(self.dijkstra_func)
+            except StopIteration:
+                self.dijkstra_func = None
+
+        else:
+            if self.gradient_func:
+                self.gradient_func_time_start = time.time()
+
+                try:
+                    next(self.gradient_func)
+                except StopIteration:
+                    self.gradient_func = None
+
+        print(self.dijkstra_func)
+
+
+    def compute(self, positions):
+        self.dijkstra_func = self.compute_dijsktra2(positions, MAX_TIME)
+        self.gradient_func = self.computeGradient(MAX_TIME)
+
+        # self.compute_dijsktra2(positions)
+        if self.dijkstra == None:
+            self.dijkstra_func_time_start = time.time()
+            list(self.dijkstra_func)
+
+        if self.gradient == None:
+            self.gradient_func_time_start = time.time()
+            list(self.gradient_func)
+
+    def computeGradient(self, max_time):
         gradient = [0] * GRID_WIDTH * GRID_HEIGHT
 
         for i in range(GRID_WIDTH * GRID_HEIGHT):
+
+            t = time.time()
+            if (t - self.gradient_func_time_start) * 1000 > max_time:
+                yield
 
             if self.dijkstra[i] < 0:
                 gradient[i] = Vec2(0.0, 0.0)
@@ -53,8 +102,6 @@ class PathFindingMap:
             gradient[i] = v
 
         self.gradient = gradient
-
-
 
     def computeDijsktra(self, px, py):
         #TODO: add error check
@@ -107,7 +154,7 @@ class PathFindingMap:
                 costs[ind] += 1
         return costs
 
-    def compute_dijsktra2(self, positions):
+    def compute_dijsktra2(self, positions, max_time):
         #TODO: add error check
 
         # -1 : Wall
@@ -122,6 +169,10 @@ class PathFindingMap:
 
         while len(indices) > 0:
             distance, index = heappop(indices)
+
+            t = time.time()
+            if (t - self.dijkstra_func_time_start) * 1000 > max_time:
+                yield
 
             if not self.game.grid.isIndexInGrid(index): continue
             if dijkstra_map[index] != -2: continue
